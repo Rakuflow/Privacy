@@ -1,0 +1,116 @@
+# -------------------------------
+# Node.js / npm / Turborepo
+# -------------------------------
+node_modules/
+npm-debug.log
+yarn-error.log
+.pnpm-store/
+.pnpm-debug.log
+.turbo/
+turbo.lock
+
+# -------------------------------
+# TypeScript / JavaScript build
+# -------------------------------
+dist/
+build/
+*.tsbuildinfo
+*.log
+
+# -------------------------------
+# Environment variables & secrets
+# -------------------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+*.pem
+*.key
+*.secret
+relayer-private-key.txt
+
+# -------------------------------
+# Next.js (frontend)
+# -------------------------------
+.next/
+out/
+.next/cache/
+.next/static/chunks/
+.vercel
+
+# -------------------------------
+# Backend (Node.js)
+# -------------------------------
+coverage/
+*.pid
+*.seed
+*.pid.lock
+
+# -------------------------------
+# Noir circuits (nargo)
+# -------------------------------
+target/                   
+proofs/                   
+*.proof
+*.vk
+*.pk
+nargo_cache/
+
+# -------------------------------
+# Cairo / Scarb (contracts)
+# -------------------------------
+target/                   
+*.sierra
+*.casm
+*.compiled_contract_class
+*.compiled_contract_class_hash
+scarb_cache/
+
+# -------------------------------
+# Tests & coverage
+# -------------------------------
+coverage/
+.nyc_output/
+jest.config.js.cache
+__tests__/*.snap
+*.lcov
+
+# -------------------------------
+# Editor & OS files
+# -------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# -------------------------------
+# Temporary / log files
+# -------------------------------
+*.tmp
+*.bak
+*.backup
+*.log.*
+logs/
+log/
+
+# -------------------------------
+# Optional: large files or downloads
+# -------------------------------
+*.zip
+*.tar.gz
+*.tgz
+downloads/
+
+# -------------------------------
+# Keep these (do NOT ignore)
+# !.gitignore
+!README.md
+!turbo.json
+!pnpm-workspace.yaml          
+!.env.example

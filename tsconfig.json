@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,                     // Don't emit JS in root (only compile in apps/packages)
+    "baseUrl": ".",
+    "paths": {
+      "@RakuZK/shared/*": ["packages/shared/src/*"]
+    }
+  },
+  "include": [],
+  "exclude": ["node_modules", "**/node_modules/*", "dist", "target"]
+}
