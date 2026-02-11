@@ -12,3 +12,6 @@ enable-gas = false
 
 [dependencies]
 cairo_execute = "2.15.0"
+starknet = ">=2.8.0"
+
+[[target.starknet-contract]]
