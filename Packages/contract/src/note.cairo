@@ -1,6 +1,6 @@
 use core::array::ArrayTrait;
 use core::poseidon::poseidon_hash_span;
-use crate::utils_constants::{MAX_VALUE, NULLIFIER_SEED, ZERO_VALUE};
+use crate::utils_constants::{MAX_VALUE, NULLIFIER_SEED, NULLIFIER_HASH_SEED, ZERO_VALUE};
 use crate::utils_errors::{INSUFFICIENT_VALUE, INVALID_COMMITMENT};
 
 #[derive(Copy, Drop, Serde)]
@@ -8,7 +8,7 @@ pub struct Note {
     pub value: u256,
     pub rho: felt252,
     pub rcm: felt252,
-    pub spending_key: felt252,
+    pub spending_key: felt252, //user generate random, independence spending key
 }
 
 #[generate_trait]
@@ -62,12 +62,14 @@ pub impl NoteImpl of NoteTrait {
         input.append(*self.spending_key);
         input.append(NULLIFIER_SEED);
         input.append(leaf_index.low.into());
+        input.append(leaf_index.high.into());
         poseidon_hash_span(input.span())
     }
 
     fn nullifier_hash(nullifier: felt252) -> felt252 {
         let mut input = ArrayTrait::<felt252>::new();
         input.append(nullifier);
+        input.append(NULLIFIER_HASH_SEED); 
         poseidon_hash_span(input.span())
     }
 }
