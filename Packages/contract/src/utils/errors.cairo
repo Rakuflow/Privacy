@@ -1,3 +1,9 @@
-const INVALID_PROOF: felt252 = 'Invalid proof';
-const NULLIFIER_USED: felt252 = 'Nullifier already used';
 const NOT_OWNER: felt252 = 'Caller is not owner';
+const ERR_INVALID_ROOT: felt252 = 'Invalid merkle root';
+const ERR_NULLIFIER_USED: felt252 = 'Nullifier already used';
+const ERR_INVALID_PROOF: felt252 = 'Invalid zk proof';
+const ERR_VALUE_MISMATCH: felt252 = 'Value mismatch';
+const ERR_INVALID_CALLER: felt252 = 'Invalid caller';
+const ERR_INVALID_COMMITMENT: felt252 = 'Invalid commitment';
+const ERR_INVALID_NULLIFIER: felt252 = 'Invalid nullifier';
+const ERR_INSUFFICIENT_VALUE: felt252 = 'Insufficient value';
