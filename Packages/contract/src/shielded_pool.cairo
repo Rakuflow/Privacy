@@ -18,7 +18,8 @@ use crate::verifier_interface::{IVerifierDispatcher, IVerifierDispatcherTrait};
 
 #[starknet::contract]
 mod ShieldedPool {
-    use starknet::storage::{
+    use crate::utils_errors::INVALID_AMOUNT_PARSE;
+use starknet::storage::{
         StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
@@ -88,13 +89,13 @@ mod ShieldedPool {
 
     #[abi(embed_v0)]
     impl ShieldedPoolImpl of IShieldedPool<ContractState> {
-        fn deposit(ref self: ContractState, amount: u256, rho: felt252, rcm: felt252) {
+        fn deposit(ref self: ContractState, amount: u256, rho: felt252, rcm: felt252, spending_key: felt252) {
             assert(amount > ZERO_VALUE, DEPOSIT_ZERO);
 
-            let mut spending_key_hasher = ArrayTrait::new();
-            spending_key_hasher.append(rho);
-            spending_key_hasher.append(rcm);
-            let spending_key = poseidon_hash_span(spending_key_hasher.span());
+            // let mut spending_key_hasher = ArrayTrait::new();
+            // spending_key_hasher.append(rho);
+            // spending_key_hasher.append(rcm);
+            // let spending_key = poseidon_hash_span(spending_key_hasher.span());
 
             let note = NoteTrait::new(amount, rho, rcm, spending_key);
             let commitment = note.commitment();
@@ -154,8 +155,9 @@ mod ShieldedPool {
             let amount_low_felt = *public_inputs.at(3);
             let amount_high_felt = *public_inputs.at(4);
 
-            let amount_low: u128 = amount_low_felt.try_into().unwrap_or(0_u128);
-            let amount_high: u128 = amount_high_felt.try_into().unwrap_or(0_u128);
+            let amount_low: u128 = amount_low_felt.try_into().expect(INVALID_AMOUNT_PARSE);
+            let amount_high: u128 = amount_high_felt.try_into().expect(INVALID_AMOUNT_PARSE);
+            
             let amount = u256 { low: amount_low, high: amount_high };
 
             assert(self._merkle_root.read() == root_in, INVALID_ROOT);

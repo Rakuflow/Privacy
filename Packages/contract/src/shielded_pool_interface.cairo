@@ -4,7 +4,7 @@ use starknet::ContractAddress;
 
 #[starknet::interface]
 pub trait IShieldedPool<TContractState> {
-    fn deposit(ref self: TContractState, amount: u256, rho: felt252, rcm: felt252);
+    fn deposit(ref self: TContractState, amount: u256, rho: felt252, rcm: felt252, spending_key: felt252);
     fn shielded_transfer(
         ref self: TContractState, proof: Array<felt252>, public_inputs: Array<felt252>,
     );
