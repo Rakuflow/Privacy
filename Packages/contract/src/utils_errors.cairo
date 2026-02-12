@@ -1,0 +1,11 @@
+pub const INVALID_PROOF: felt252 = 'Invalid zk proof';
+pub const INVALID_ROOT: felt252 = 'Invalid Merkle root';
+pub const NULLIFIER_SPENT: felt252 = 'Nullifier already spent';
+pub const INVALID_PATH: felt252 = 'Invalid Merkle path';
+pub const INSUFFICIENT_VALUE: felt252 = 'Insufficient note value';
+pub const INVALID_COMMITMENT: felt252 = 'Invalid commitment';
+pub const INVALID_NULLIFIER: felt252 = 'Invalid nullifier';
+pub const TREE_FULL: felt252 = 'Merkle tree full';
+pub const INVALID_INDEX: felt252 = 'Invalid leaf index';
+pub const DEPOSIT_ZERO: felt252 = 'Deposit amount zero';
+pub const WITHDRAW_ZERO: felt252 = 'Withdraw amount zero';
