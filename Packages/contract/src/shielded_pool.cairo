@@ -18,11 +18,11 @@ use crate::verifier_interface::{IVerifierDispatcher, IVerifierDispatcherTrait};
 
 #[starknet::contract]
 mod ShieldedPool {
-    use crate::utils_errors::INVALID_AMOUNT_PARSE;
-use starknet::storage::{
+    use starknet::storage::{
         StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
+    use crate::utils_errors::INVALID_AMOUNT_PARSE;
     use super::*;
 
     #[derive(Drop, starknet::Event)]
@@ -89,7 +89,13 @@ use starknet::storage::{
 
     #[abi(embed_v0)]
     impl ShieldedPoolImpl of IShieldedPool<ContractState> {
-        fn deposit(ref self: ContractState, amount: u256, rho: felt252, rcm: felt252, spending_key: felt252) {
+        fn deposit(
+            ref self: ContractState,
+            amount: u256,
+            rho: felt252,
+            rcm: felt252,
+            spending_key: felt252,
+        ) {
             assert(amount > ZERO_VALUE, DEPOSIT_ZERO);
 
             // let mut spending_key_hasher = ArrayTrait::new();
@@ -157,7 +163,7 @@ use starknet::storage::{
 
             let amount_low: u128 = amount_low_felt.try_into().expect(INVALID_AMOUNT_PARSE);
             let amount_high: u128 = amount_high_felt.try_into().expect(INVALID_AMOUNT_PARSE);
-            
+
             let amount = u256 { low: amount_low, high: amount_high };
 
             assert(self._merkle_root.read() == root_in, INVALID_ROOT);
