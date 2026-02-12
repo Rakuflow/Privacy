@@ -9,3 +9,5 @@ pub const TREE_FULL: felt252 = 'Merkle tree full';
 pub const INVALID_INDEX: felt252 = 'Invalid leaf index';
 pub const DEPOSIT_ZERO: felt252 = 'Deposit amount zero';
 pub const WITHDRAW_ZERO: felt252 = 'Withdraw amount zero';
+pub const INVALID_SPENDING_KEY: felt252 = 'Invalid spending key';
+pub const INVALID_AMOUNT_PARSE: felt252 = 'Invalid amount in public inputs';
