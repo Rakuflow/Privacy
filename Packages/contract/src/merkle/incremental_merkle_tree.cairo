@@ -1,5 +1,4 @@
-use array::ArrayTrait;
-use array::SpanTrait;
+use array::{ArrayTrait, SpanTrait};
 use poseidon::PoseidonTrait;
 use utils::constants::{TREE_HEIGHT, ZERO_COMMITMENT};
 use super::merkle_path::MerklePath;
@@ -7,76 +6,103 @@ use super::merkle_path::MerklePath;
 #[derive(Copy, Drop, starknet::Store)]
 struct IncrementalMerkleTree {
     root: felt252,
-    frontiers: Array<felt252>,  // One per level, up to TREE_HEIGHT - 1
+    frontiers: Array<felt252>,
     next_index: u256,
 }
 
 #[generate_trait]
-impl IncrementalMerkleTreeImpl of IncrementalMerkleTreeTrait {
+impl IncrementalMerkleTreeImpl of IncrementalMerkleTreeTrait<IncrementalMerkleTree> {
     fn new(initial_root: felt252) -> IncrementalMerkleTree {
-        let mut frontiers = ArrayTrait::new();
+        let mut frontiers: Array<felt252> = ArrayTrait::new();
         let mut i: usize = 0;
-        while i < TREE_HEIGHT - 1 {
+        loop {
+            if i >= TREE_HEIGHT - 1 {
+                break;
+            }
             frontiers.append(ZERO_COMMITMENT);
             i += 1;
-        };
-        IncrementalMerkleTree { root: initial_root, frontiers, next_index: 0 }
+        }
+
+        IncrementalMerkleTree { root: initial_root, frontiers, next_index: 0_u256 }
     }
 
     fn append_leaf(ref self: IncrementalMerkleTree, leaf: felt252) -> u256 {
-        let index = self.next_index;
+        let mut index = self.next_index;
         let mut current = leaf;
         let mut level: usize = 0;
-        let mut side: bool;
 
-        while level < TREE_HEIGHT {
-            side = ((index >> level) & 1) == 1;
-            let sibling = self.frontiers.at(level);
+        loop {
+            if level >= TREE_HEIGHT {
+                break;
+            }
+
+            // Sửa lỗi bit shift: dùng low của u256 (giả sử index < 2^128)
+            let bit = (index.low
+                / (1_u128 * pow2(level))) % 2_u128; // thay thế cho (index >> level) & 1
+            let side = bit == 1_u128;
+
+            let sibling = *self.frontiers.at(level);
+
             if side {
-                current = poseidon_hash(*sibling, current);
+                current = PoseidonTrait::new().update(sibling).update(current).finalize();
             } else {
-                current = poseidon_hash(current, *sibling);
+                current = PoseidonTrait::new().update(current).update(sibling).finalize();
             }
 
             if level < TREE_HEIGHT - 1 {
-                self.frontiers[level] = current;
+                self.frontiers.replace(level, current);
             }
 
             level += 1;
-        };
+        }
 
         self.root = current;
-        self.next_index += 1;
+        self.next_index = self.next_index + 1_u256;
+
         index
     }
 
-    fn get_root(self: @IncrementalMerkleTree) -> felt252 {
-        *self.root
-    }
-
     fn verify_path(
-        self: @IncrementalMerkleTree, path: MerklePath, leaf: felt252, leaf_index: u256
+        self: @IncrementalMerkleTree, path: MerklePath, leaf: felt252, leaf_index: u256,
     ) -> bool {
         let mut current = leaf;
         let mut index = leaf_index;
         let mut i: usize = 0;
-        while i < TREE_HEIGHT {
-            let sibling = path.siblings.at(i);
-            let side = ((index >> i) & 1) == 1;
-            if side {
-                current = poseidon_hash(*sibling, current);
-            } else {
-                current = poseidon_hash(current, *sibling);
+
+        loop {
+            if i >= TREE_HEIGHT {
+                break;
             }
+
+            // Sửa bit shift tương tự
+            let bit = (index.low / (1_u128 * pow2(i))) % 2_u128;
+            let side = bit == 1_u128;
+
+            let sibling = *path.siblings.at(i);
+
+            if side {
+                current = PoseidonTrait::new().update(sibling).update(current).finalize();
+            } else {
+                current = PoseidonTrait::new().update(current).update(sibling).finalize();
+            }
+
             i += 1;
-        };
+        }
+
         current == *self.root
     }
 }
 
-fn poseidon_hash(a: felt252, b: felt252) -> felt252 {
-    let mut inputs: Array<felt252> = ArrayTrait::new();
-    inputs.append(a);
-    inputs.append(b);
-    PoseidonTrait::new().update_with(inputs.span()).finalize()
+// Helper function để thay thế pow(2, level) vì Cairo không có pow built-in cho u128
+fn pow2(exp: usize) -> u128 {
+    let mut result: u128 = 1;
+    let mut i: usize = 0;
+    loop {
+        if i >= exp {
+            break;
+        }
+        result *= 2_u128;
+        i += 1;
+    }
+    result
 }
