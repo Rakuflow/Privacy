@@ -94,14 +94,11 @@ mod WithdrawBridge {
             assert(self.supported_tokens.read(token), ERR_TOKEN_NOT_SUPPORTED);
             assert(recipient != Zeroable::zero(), 'invalid recipient');
 
-            // Gọi shielded_pool.withdraw để verify proof, mark nullifier, và confirm spend
             let pool_dispatcher = IShieldedPoolDispatcher {
                 contract_address: self.shielded_pool.read(),
             };
             pool_dispatcher.withdraw(proof, public_inputs, nullifier, recipient, value);
 
-            // Sau khi shielded_pool xác nhận (không revert), bridge thực hiện transfer
-            // token ra recipient
             let erc20 = IERC20Dispatcher { contract_address: token };
             erc20.transfer(recipient, value);
 

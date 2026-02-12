@@ -36,9 +36,8 @@ impl IncrementalMerkleTreeImpl of IncrementalMerkleTreeTrait<IncrementalMerkleTr
                 break;
             }
 
-            // Sửa lỗi bit shift: dùng low của u256 (giả sử index < 2^128)
             let bit = (index.low
-                / (1_u128 * pow2(level))) % 2_u128; // thay thế cho (index >> level) & 1
+                / (1_u128 * pow2(level))) % 2_u128; 
             let side = bit == 1_u128;
 
             let sibling = *self.frontiers.at(level);
@@ -74,7 +73,6 @@ impl IncrementalMerkleTreeImpl of IncrementalMerkleTreeTrait<IncrementalMerkleTr
                 break;
             }
 
-            // Sửa bit shift tương tự
             let bit = (index.low / (1_u128 * pow2(i))) % 2_u128;
             let side = bit == 1_u128;
 
@@ -93,7 +91,7 @@ impl IncrementalMerkleTreeImpl of IncrementalMerkleTreeTrait<IncrementalMerkleTr
     }
 }
 
-// Helper function để thay thế pow(2, level) vì Cairo không có pow built-in cho u128
+// Helper function
 fn pow2(exp: usize) -> u128 {
     let mut result: u128 = 1;
     let mut i: usize = 0;

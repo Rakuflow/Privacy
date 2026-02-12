@@ -99,7 +99,6 @@ mod DepositBridge {
             let erc20 = IERC20Dispatcher { contract_address: token };
             erc20.transfer_from(caller, self.shielded_pool.read(), value);
 
-            // Gọi shielded_pool.deposit để verify proof và append commitment
             let pool_dispatcher = IShieldedPoolDispatcher {
                 contract_address: self.shielded_pool.read(),
             };
