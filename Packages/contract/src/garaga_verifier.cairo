@@ -13,6 +13,13 @@ mod GaragaVerifier {
         fn verify_shielded_transfer(
             ref self: ContractState, proof: Array<felt252>, public_inputs: Array<felt252>,
         ) -> bool {
+            // TODO: Deploy Garaga real verifier
+            // Circuit check:
+            // - Merkle root in public_inputs[0] valid
+            // - Nullifier derive from spending_key + rho + index
+            // - Value conservation: old_value = new_value (+ fee)
+            // - Range check value
+            // - Nullifier don't leak spending key
             if proof.len() != 3 || public_inputs.len() != 4 {
                 return false;
             }
