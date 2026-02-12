@@ -10,3 +10,5 @@ enable-gas = true
 starknet = ">=2.8.0"
 
 [[target.starknet-contract]]
+sierra = true   
+casm = true
