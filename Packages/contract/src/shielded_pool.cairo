@@ -1,27 +1,27 @@
-use core::array::{ArrayTrait, SpanTrait};
-use core::integer::{u256, u32};
+use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use starknet::{get_caller_address, get_contract_address, ContractAddress};
+use core::array::{ArrayTrait};
+use core::integer::{u256, u128};
 use core::num::traits::Zero;
 use core::option::OptionTrait;
 use core::poseidon::poseidon_hash_span;
 use core::traits::{Into, TryInto};
-use starknet::ContractAddress;
-use starknet::storage::Map;
+use starknet::storage::{
+    Map,
+    StoragePathEntry,               // ← BẮT BUỘC để dùng .entry(key)
+    StoragePointerReadAccess,
+    StoragePointerWriteAccess
+};
+
 use crate::incremental_merkle_tree::{pow2_u128, pow2_u256};
 use crate::note::NoteTrait;
 use crate::shielded_pool_interface::IShieldedPool;
-use crate::utils_constants::{TREE_HEIGHT, ZERO_COMMITMENT, ZERO_VALUE};
-use crate::utils_errors::{
-    DEPOSIT_ZERO, INSUFFICIENT_VALUE, INVALID_AMOUNT_PARSE, INVALID_INDEX, INVALID_PROOF,
-    INVALID_ROOT, NULLIFIER_SPENT, TREE_FULL, WITHDRAW_ZERO,
-};
+use crate::utils_constants::{MAX_VALUE, TREE_HEIGHT, ZERO_COMMITMENT, ZERO_VALUE};
+use crate::utils_errors::*;
 use crate::verifier_interface::{IVerifierDispatcher, IVerifierDispatcherTrait};
 
 #[starknet::contract]
 mod ShieldedPool {
-    use starknet::storage::{
-        StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
-        StoragePointerWriteAccess,
-    };
     use super::*;
 
     #[derive(Drop, starknet::Event)]
@@ -30,6 +30,7 @@ mod ShieldedPool {
         commitment: felt252,
         #[key]
         leaf_index: u256,
+        amount: u256,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -46,13 +47,12 @@ mod ShieldedPool {
         nullifier_hash: felt252,
         #[key]
         recipient: ContractAddress,
-        #[key]
         amount: u256,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
-    pub enum Event {
+    enum Event {
         DepositEvent: DepositEvent,
         TransferEvent: TransferEvent,
         WithdrawEvent: WithdrawEvent,
@@ -61,27 +61,29 @@ mod ShieldedPool {
     #[storage]
     struct Storage {
         _verifier: ContractAddress,
+        _token: ContractAddress,
         _merkle_root: felt252,
         _commitments_count: u256,
         _frontiers: Map<u32, felt252>,
         _commitments: Map<u256, felt252>,
         _nullifiers: Map<felt252, bool>,
-        _total_supply: u256,
+        _total_locked: u256,
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, verifier: ContractAddress) {
+    fn constructor(ref self: ContractState, verifier: ContractAddress, token: ContractAddress) {
         self._verifier.write(verifier);
+        self._token.write(token);
         self._merkle_root.write(ZERO_COMMITMENT);
         self._commitments_count.write(0_u256);
-        self._total_supply.write(0_u256);
+        self._total_locked.write(0_u256);
 
         let mut i: u32 = 0;
         loop {
             if i >= TREE_HEIGHT.try_into().unwrap() {
                 break;
             }
-            self._frontiers.write(i, ZERO_COMMITMENT);
+            self._frontiers.entry(i).write(ZERO_COMMITMENT);
             i += 1;
         }
     }
@@ -95,46 +97,49 @@ mod ShieldedPool {
             rcm: felt252,
             spending_key: felt252,
         ) {
-            assert(amount > ZERO_VALUE, DEPOSIT_ZERO);
+            assert(amount > ZERO_VALUE && amount <= MAX_VALUE, INVALID_COMMITMENT);
+
+            let caller = get_caller_address();
+            let this = get_contract_address();
+            let token = IERC20Dispatcher { contract_address: self._token.read() };
+
+            token.transfer_from(caller, this, amount);
 
             let note = NoteTrait::new(amount, rho, rcm, spending_key);
             let commitment = note.commitment();
 
             let leaf_index = self._commitments_count.read();
-            self._commitments.write(leaf_index, commitment);
-
+            self._commitments.entry(leaf_index).write(commitment);
             self.append_commitment(commitment);
 
-            self._total_supply.write(self._total_supply.read() + amount);
+            self._total_locked.write(self._total_locked.read() + amount);
 
-            self.emit(Event::DepositEvent(DepositEvent { commitment, leaf_index }));
+            self.emit(Event::DepositEvent(DepositEvent { commitment, leaf_index, amount }));
         }
 
         fn shielded_transfer(
-            ref self: ContractState, proof: Array<felt252>, public_inputs: Array<felt252>,
+            ref self: ContractState,
+            proof: Array<felt252>,
+            public_inputs: Array<felt252>,
         ) {
             assert(proof.len() >= 1 && public_inputs.len() == 3, INVALID_PROOF);
 
             let verifier = IVerifierDispatcher { contract_address: self._verifier.read() };
-            let is_valid = verifier.verify_shielded_transfer(proof, public_inputs.clone());
-            assert(is_valid, INVALID_PROOF);
+            assert(verifier.verify_shielded_transfer(proof, public_inputs.clone()), INVALID_PROOF);
 
-            let root_in = *public_inputs.at(0);
+            let root = *public_inputs.at(0);
             let nullifier_hash = *public_inputs.at(1);
-            let commitment_out = *public_inputs.at(2);
+            let new_commitment = *public_inputs.at(2);
 
-            assert(self._merkle_root.read() == root_in, INVALID_ROOT);
+            assert(self._merkle_root.read() == root, INVALID_ROOT);
+            assert(!self._nullifiers.entry(nullifier_hash).read(), NULLIFIER_SPENT);
+            self._nullifiers.entry(nullifier_hash).write(true);
 
-            let spent = self._nullifiers.read(nullifier_hash);
-            assert(!spent, NULLIFIER_SPENT);
-            self._nullifiers.write(nullifier_hash, true);
+            let new_index = self._commitments_count.read();
+            self._commitments.entry(new_index).write(new_commitment);
+            self.append_commitment(new_commitment);
 
-            let leaf_index = self._commitments_count.read();
-            self._commitments.write(leaf_index, commitment_out);
-
-            self.append_commitment(commitment_out);
-
-            self.emit(Event::TransferEvent(TransferEvent { nullifier_hash, commitment_out }));
+            self.emit(Event::TransferEvent(TransferEvent { nullifier_hash, commitment_out: new_commitment }));
         }
 
         fn withdraw(
@@ -143,32 +148,28 @@ mod ShieldedPool {
             public_inputs: Array<felt252>,
             recipient: ContractAddress,
         ) {
-            assert(proof.len() >= 1 && public_inputs.len() == 5, INVALID_PROOF);
             assert(!recipient.is_zero(), WITHDRAW_ZERO);
+            assert(proof.len() >= 1 && public_inputs.len() == 5, INVALID_PROOF);
 
             let verifier = IVerifierDispatcher { contract_address: self._verifier.read() };
-            let is_valid = verifier.verify_withdraw(proof, public_inputs.clone());
-            assert(is_valid, INVALID_PROOF);
+            assert(verifier.verify_withdraw(proof, public_inputs.clone()), INVALID_PROOF);
 
-            let root_in = *public_inputs.at(0);
+            let root = *public_inputs.at(0);
             let nullifier_hash = *public_inputs.at(1);
-            let amount_low_felt = *public_inputs.at(2);
-            let amount_high_felt = *public_inputs.at(3);
-
-            let amount_low: u128 = amount_low_felt.try_into().expect(INVALID_AMOUNT_PARSE);
-            let amount_high: u128 = amount_high_felt.try_into().expect(INVALID_AMOUNT_PARSE);
-
+            let amount_low: u128 = (*public_inputs.at(2)).try_into().expect(INVALID_AMOUNT_PARSE);
+            let amount_high: u128 = (*public_inputs.at(3)).try_into().expect(INVALID_AMOUNT_PARSE);
             let amount = u256 { low: amount_low, high: amount_high };
 
-            assert(self._merkle_root.read() == root_in, INVALID_ROOT);
+            assert(self._merkle_root.read() == root, INVALID_ROOT);
+            assert(!self._nullifiers.entry(nullifier_hash).read(), NULLIFIER_SPENT);
+            self._nullifiers.entry(nullifier_hash).write(true);
 
-            let spent = self._nullifiers.read(nullifier_hash);
-            assert(!spent, NULLIFIER_SPENT);
-            self._nullifiers.write(nullifier_hash, true);
+            let locked = self._total_locked.read();
+            assert(locked >= amount, INSUFFICIENT_VALUE);
+            self._total_locked.write(locked - amount);
 
-            let current_supply = self._total_supply.read();
-            assert(current_supply >= amount, INSUFFICIENT_VALUE);
-            self._total_supply.write(current_supply - amount);
+            let token = IERC20Dispatcher { contract_address: self._token.read() };
+            token.transfer(recipient, amount);
 
             self.emit(Event::WithdrawEvent(WithdrawEvent { nullifier_hash, recipient, amount }));
         }
@@ -178,11 +179,9 @@ mod ShieldedPool {
         }
 
         fn is_nullifier_spent(ref self: ContractState, nullifier_hash: felt252) -> bool {
-            self._nullifiers.read(nullifier_hash)
+            self._nullifiers.entry(nullifier_hash).read()
         }
 
-        // calculate siblings with recurse full fot subtree hash. Frontend get path
-        // for circuit.
         fn get_merkle_path(ref self: ContractState, index: u256) -> Array<felt252> {
             let commitments_count = self._commitments_count.read();
             assert(index < commitments_count, INVALID_INDEX);
@@ -198,10 +197,7 @@ mod ShieldedPool {
                 let is_left = is_left_u128.into();
                 let sibling_hash = if is_left == 0 {
                     let sibling_index = current_index + pow2_u256(current_level);
-                    self
-                        .compute_hash_at_index(
-                            sibling_index, TREE_HEIGHT - current_level - 1,
-                        ) // Recurse for subtree depth
+                    self.compute_hash_at_index(sibling_index, TREE_HEIGHT - current_level - 1)
                 } else {
                     let sibling_index = current_index - pow2_u256(current_level);
                     self.compute_hash_at_index(sibling_index, TREE_HEIGHT - current_level - 1)
@@ -214,29 +210,23 @@ mod ShieldedPool {
     }
 
     #[generate_trait]
-    pub impl Internal of InternalTrait {
-        // Base: If depth=0 (leaf), return commitment; else hash left + right child.
+    impl Internal of InternalTrait {
         fn compute_hash_at_index(
-            ref self: ContractState, mut node_index: u256, remaining_depth: usize,
+            self: @ContractState,
+            mut node_index: u256,
+            remaining_depth: usize,
         ) -> felt252 {
             if remaining_depth == 0 {
-                // Leaf: Lookup commitment
                 let commitments_count = self._commitments_count.read();
                 if node_index >= commitments_count {
                     ZERO_COMMITMENT
                 } else {
-                    self._commitments.read(node_index)
+                    self._commitments.entry(node_index).read()
                 }
             } else {
-                // Internal node: Recurse left (2*index) và right (2*index+1)
-                let left_hash = self
-                    .compute_hash_at_index(node_index * 2_u256, remaining_depth - 1);
-                let right_hash = self
-                    .compute_hash_at_index(node_index * 2_u256 + 1_u256, remaining_depth - 1);
-                // Hash Poseidon left + right
-                let mut hash_input = ArrayTrait::<felt252>::new();
-                hash_input.append(left_hash);
-                hash_input.append(right_hash);
+                let left_hash = self.compute_hash_at_index(node_index * 2_u256, remaining_depth - 1);
+                let right_hash = self.compute_hash_at_index(node_index * 2_u256 + 1_u256, remaining_depth - 1);
+                let mut hash_input = array![left_hash, right_hash];
                 poseidon_hash_span(hash_input.span())
             }
         }
@@ -256,12 +246,12 @@ mod ShieldedPool {
                 }
 
                 let level_u32: u32 = level.try_into().unwrap();
-                let sibling = self._frontiers.read(level_u32);
+                let sibling = self._frontiers.entry(level_u32).read();
 
                 let shift = pow2_u128(level);
                 let is_right = ((index.low / shift) % 2_u128) != 0_u128;
 
-                let mut hash_input: Array<felt252> = ArrayTrait::new();
+                let mut hash_input = array![];
                 if is_right {
                     hash_input.append(sibling);
                     hash_input.append(current);
@@ -272,7 +262,7 @@ mod ShieldedPool {
                 current = poseidon_hash_span(hash_input.span());
 
                 if level < TREE_HEIGHT - 1 {
-                    self._frontiers.write(level_u32, current);
+                    self._frontiers.entry(level_u32).write(current);
                 }
 
                 level += 1;

@@ -1,4 +1,3 @@
-use core::array::ArrayTrait;
 use crate::verifier_interface::IVerifier;
 
 #[starknet::contract]
