@@ -11,8 +11,8 @@ use crate::note::NoteTrait;
 use crate::shielded_pool_interface::IShieldedPool;
 use crate::utils_constants::{TREE_HEIGHT, ZERO_COMMITMENT, ZERO_VALUE};
 use crate::utils_errors::{
-    DEPOSIT_ZERO, INSUFFICIENT_VALUE, INVALID_PROOF, INVALID_ROOT, NULLIFIER_SPENT, TREE_FULL,
-    WITHDRAW_ZERO, INVALID_AMOUNT_PARSE, INVALID_INDEX,
+    DEPOSIT_ZERO, INSUFFICIENT_VALUE, INVALID_AMOUNT_PARSE, INVALID_INDEX, INVALID_PROOF,
+    INVALID_ROOT, NULLIFIER_SPENT, TREE_FULL, WITHDRAW_ZERO,
 };
 use crate::verifier_interface::{IVerifierDispatcher, IVerifierDispatcherTrait};
 
@@ -181,7 +181,8 @@ mod ShieldedPool {
             self._nullifiers.read(nullifier_hash)
         }
 
-        // Sửa thật: calculate siblings with recurse full fot subtree hash. Frontend get path for circuit.
+        // calculate siblings with recurse full fot subtree hash. Frontend get path
+        // for circuit.
         fn get_merkle_path(ref self: ContractState, index: u256) -> Array<felt252> {
             let commitments_count = self._commitments_count.read();
             assert(index < commitments_count, INVALID_INDEX);
@@ -197,14 +198,17 @@ mod ShieldedPool {
                 let is_left = is_left_u128.into();
                 let sibling_hash = if is_left == 0 {
                     let sibling_index = current_index + pow2_u256(current_level);
-                    self.compute_hash_at_index(sibling_index, TREE_HEIGHT - current_level - 1)  // Recurse for subtree depth
+                    self
+                        .compute_hash_at_index(
+                            sibling_index, TREE_HEIGHT - current_level - 1,
+                        ) // Recurse for subtree depth
                 } else {
                     let sibling_index = current_index - pow2_u256(current_level);
                     self.compute_hash_at_index(sibling_index, TREE_HEIGHT - current_level - 1)
                 };
                 siblings.append(sibling_hash);
                 current_level += 1;
-            };
+            }
             siblings
         }
     }
@@ -212,7 +216,9 @@ mod ShieldedPool {
     #[generate_trait]
     pub impl Internal of InternalTrait {
         // Base: If depth=0 (leaf), return commitment; else hash left + right child.
-        fn compute_hash_at_index(ref self: ContractState, mut node_index: u256, remaining_depth: usize) -> felt252 {
+        fn compute_hash_at_index(
+            ref self: ContractState, mut node_index: u256, remaining_depth: usize,
+        ) -> felt252 {
             if remaining_depth == 0 {
                 // Leaf: Lookup commitment
                 let commitments_count = self._commitments_count.read();
@@ -223,9 +229,11 @@ mod ShieldedPool {
                 }
             } else {
                 // Internal node: Recurse left (2*index) và right (2*index+1)
-                let left_hash = self.compute_hash_at_index(node_index * 2_u256, remaining_depth - 1);
-                let right_hash = self.compute_hash_at_index(node_index * 2_u256 + 1_u256, remaining_depth - 1);
-                // Hash Poseidon left + right 
+                let left_hash = self
+                    .compute_hash_at_index(node_index * 2_u256, remaining_depth - 1);
+                let right_hash = self
+                    .compute_hash_at_index(node_index * 2_u256 + 1_u256, remaining_depth - 1);
+                // Hash Poseidon left + right
                 let mut hash_input = ArrayTrait::<felt252>::new();
                 hash_input.append(left_hash);
                 hash_input.append(right_hash);

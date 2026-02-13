@@ -17,5 +17,6 @@ pub trait IShieldedPool<TContractState> {
         recipient: ContractAddress,
     );
     fn get_merkle_root(ref self: TContractState) -> felt252;
+    fn get_merkle_path(ref self: TContractState, index: u256) -> Array<felt252>;
     fn is_nullifier_spent(ref self: TContractState, nullifier_hash: felt252) -> bool;
 }
