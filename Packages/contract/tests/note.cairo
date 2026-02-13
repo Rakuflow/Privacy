@@ -1,19 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use snforge_std::{declare, deploy_syscall, cheat_caller_address_global, ContractClassTrait};
-    use starknet::{ContractAddress, contract_address_const};
-    use core::traits::{Into, TryInto};
-    use core::option::OptionTrait;
-    use core::result::ResultTrait;
-    use core::array::{ArrayTrait, SpanTrait};
-    use contract::incremental_merkle_tree::{IncrementalMerkleTree, IncrementalMerkleTreeTrait};
-    use contract::merkle_path::{MerklePath, MerklePathTrait};
-    use contract::note::{Note, NoteTrait};
-    use contract::shielded_pool_interface::{IShieldedPoolDispatcher, IShieldedPoolDispatcherTrait};
-    use contract::verifier_interface::{IVerifierDispatcher, IVerifierDispatcherTrait};
-    use contract::utils_constants::{TREE_HEIGHT, ZERO_COMMITMENT, ZERO_VALUE, MAX_VALUE, NULLIFIER_SEED, NULLIFIER_HASH_SEED};
-    use contract::utils_errors::*;
-    use contract::incremental_merkle_tree::{pow2_u128, pow2_u256}; 
+    use contract::note::NoteTrait;
+    use core::array::ArrayTrait;
 
     #[test]
     fn test_note_new() {
@@ -28,14 +16,14 @@ mod tests {
     #[test]
     #[should_panic(expected: ('INVALID_COMMITMENT', ))]
     fn test_note_new_invalid_value() {
-        NoteTrait::new(0_u256, 1_felt252, 2_felt252, 3_felt252); // Zero value
+        NoteTrait::new(0_u256, 1_felt252, 2_felt252, 3_felt252);
     }
 
     #[test]
     #[should_panic(expected: ('INSUFFICIENT_VALUE', ))]
     fn test_note_split_invalid() {
         let note = NoteTrait::new(100_u256, 1_felt252, 2_felt252, 3_felt252);
-        let _ = note.split(200_u256); // Split > value
+        let _ = note.split(200_u256);
     }
 
     #[test]

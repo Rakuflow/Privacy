@@ -9,7 +9,7 @@ edition = "2024_07"
 starknet = "2.15.0"
 
 [dev-dependencies]
-snforge_std = "0.56.0"
+snforge_std = "0.55.0"
 assert_macros = "2.15.0"
 
 [[target.starknet-contract]]
@@ -23,7 +23,7 @@ allow-prebuilt-plugins = ["snforge_std"]
 
 # Visit https://foundry-rs.github.io/starknet-foundry/appendix/scarb-toml.html for more information
 
-# [tool.snforge]                                             # Define `snforge` tool section
+#[tool.snforge]                                             # Define `snforge` tool section
 # exit_first = true                                          # Stop tests execution immediately upon the first failure
 # fuzzer_runs = 1234                                         # Number of runs of the random fuzzer
 # fuzzer_seed = 1111                                         # Seed for the random fuzzer

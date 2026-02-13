@@ -189,7 +189,7 @@ mod ShieldedPool {
     }
 
     #[generate_trait]
-    impl Internal of InternalTrait {
+    pub impl Internal of InternalTrait {
         fn append_commitment(ref self: ContractState, commitment: felt252) {
             let next_leaf_index = self._commitments_count.read();
             let max_leaves = pow2_u256(TREE_HEIGHT);

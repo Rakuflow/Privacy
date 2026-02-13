@@ -1,19 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use snforge_std::{declare, deploy_syscall, cheat_caller_address_global, ContractClassTrait};
-    use starknet::{ContractAddress, contract_address_const};
-    use core::traits::{Into, TryInto};
+    use contract::incremental_merkle_tree::{IncrementalMerkleTreeTrait, pow2_u256};
+    use contract::utils_constants::{TREE_HEIGHT, ZERO_COMMITMENT};
+    use core::array::ArrayTrait;
     use core::option::OptionTrait;
-    use core::result::ResultTrait;
-    use core::array::{ArrayTrait, SpanTrait};
-    use contract::incremental_merkle_tree::{IncrementalMerkleTree, IncrementalMerkleTreeTrait};
-    use contract::merkle_path::{MerklePath, MerklePathTrait};
-    use contract::note::{Note, NoteTrait};
-    use contract::shielded_pool_interface::{IShieldedPoolDispatcher, IShieldedPoolDispatcherTrait};
-    use contract::verifier_interface::{IVerifierDispatcher, IVerifierDispatcherTrait};
-    use contract::utils_constants::{TREE_HEIGHT, ZERO_COMMITMENT, ZERO_VALUE, MAX_VALUE, NULLIFIER_SEED, NULLIFIER_HASH_SEED};
-    use contract::utils_errors::*;
-    use contract::incremental_merkle_tree::{pow2_u128, pow2_u256}; 
 
     #[test]
     fn test_merkle_tree_new() {
@@ -33,7 +23,7 @@ mod tests {
         assert(path1.siblings.len() == TREE_HEIGHT, 'Path siblings wrong length');
 
         let leaf2 = 456_felt252;
-        let path2 = tree.append_leaf(leaf2);
+        let _ = tree.append_leaf(leaf2);
         assert(tree.next_leaf_index == 2_u256, 'Next index should be 2');
     }
 
@@ -50,7 +40,6 @@ mod tests {
             tree.append_leaf(1_felt252);
             i += 1_u256;
         };
-
         tree.append_leaf(1_felt252);
     }
 
@@ -68,7 +57,7 @@ mod tests {
             Option::None => assert(false, 'Path should not exist'),
         };
 
-        let invalid_option = tree.get_path_for_index(10_u256); 
+        let invalid_option = tree.get_path_for_index(10_u256);
         match invalid_option {
             Option::Some(_) => assert(false, 'Path should not exist'),
             Option::None => {},

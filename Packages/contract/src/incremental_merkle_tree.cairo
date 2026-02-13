@@ -32,7 +32,7 @@ pub struct IncrementalMerkleTree {
 }
 
 #[generate_trait]
-impl IncrementalMerkleTreeImpl of IncrementalMerkleTreeTrait {
+pub impl IncrementalMerkleTreeImpl of IncrementalMerkleTreeTrait {
     fn new() -> IncrementalMerkleTree {
         let mut frontiers = ArrayTrait::<felt252>::new();
         let mut i: usize = 0;
