@@ -12,7 +12,7 @@ use crate::shielded_pool_interface::IShieldedPool;
 use crate::utils_constants::{TREE_HEIGHT, ZERO_COMMITMENT, ZERO_VALUE};
 use crate::utils_errors::{
     DEPOSIT_ZERO, INSUFFICIENT_VALUE, INVALID_PROOF, INVALID_ROOT, NULLIFIER_SPENT, TREE_FULL,
-    WITHDRAW_ZERO,
+    WITHDRAW_ZERO, INVALID_AMOUNT_PARSE, INVALID_INDEX,
 };
 use crate::verifier_interface::{IVerifierDispatcher, IVerifierDispatcherTrait};
 
@@ -22,7 +22,6 @@ mod ShieldedPool {
         StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
-    use crate::utils_errors::INVALID_AMOUNT_PARSE;
     use super::*;
 
     #[derive(Drop, starknet::Event)]
@@ -98,11 +97,6 @@ mod ShieldedPool {
         ) {
             assert(amount > ZERO_VALUE, DEPOSIT_ZERO);
 
-            // let mut spending_key_hasher = ArrayTrait::new();
-            // spending_key_hasher.append(rho);
-            // spending_key_hasher.append(rcm);
-            // let spending_key = poseidon_hash_span(spending_key_hasher.span());
-
             let note = NoteTrait::new(amount, rho, rcm, spending_key);
             let commitment = note.commitment();
 
@@ -119,7 +113,7 @@ mod ShieldedPool {
         fn shielded_transfer(
             ref self: ContractState, proof: Array<felt252>, public_inputs: Array<felt252>,
         ) {
-            assert(proof.len() >= 1 && public_inputs.len() >= 4, INVALID_PROOF);
+            assert(proof.len() >= 1 && public_inputs.len() == 3, INVALID_PROOF);
 
             let verifier = IVerifierDispatcher { contract_address: self._verifier.read() };
             let is_valid = verifier.verify_shielded_transfer(proof, public_inputs.clone());
@@ -127,7 +121,7 @@ mod ShieldedPool {
 
             let root_in = *public_inputs.at(0);
             let nullifier_hash = *public_inputs.at(1);
-            let commitment_out = *public_inputs.at(3);
+            let commitment_out = *public_inputs.at(2);
 
             assert(self._merkle_root.read() == root_in, INVALID_ROOT);
 
@@ -149,7 +143,7 @@ mod ShieldedPool {
             public_inputs: Array<felt252>,
             recipient: ContractAddress,
         ) {
-            assert(proof.len() >= 1 && public_inputs.len() >= 5, INVALID_PROOF);
+            assert(proof.len() >= 1 && public_inputs.len() == 5, INVALID_PROOF);
             assert(!recipient.is_zero(), WITHDRAW_ZERO);
 
             let verifier = IVerifierDispatcher { contract_address: self._verifier.read() };
@@ -158,8 +152,8 @@ mod ShieldedPool {
 
             let root_in = *public_inputs.at(0);
             let nullifier_hash = *public_inputs.at(1);
-            let amount_low_felt = *public_inputs.at(3);
-            let amount_high_felt = *public_inputs.at(4);
+            let amount_low_felt = *public_inputs.at(2);
+            let amount_high_felt = *public_inputs.at(3);
 
             let amount_low: u128 = amount_low_felt.try_into().expect(INVALID_AMOUNT_PARSE);
             let amount_high: u128 = amount_high_felt.try_into().expect(INVALID_AMOUNT_PARSE);
@@ -186,10 +180,59 @@ mod ShieldedPool {
         fn is_nullifier_spent(ref self: ContractState, nullifier_hash: felt252) -> bool {
             self._nullifiers.read(nullifier_hash)
         }
+
+        // Sửa thật: calculate siblings with recurse full fot subtree hash. Frontend get path for circuit.
+        fn get_merkle_path(ref self: ContractState, index: u256) -> Array<felt252> {
+            let commitments_count = self._commitments_count.read();
+            assert(index < commitments_count, INVALID_INDEX);
+            let mut siblings = ArrayTrait::<felt252>::new();
+            let mut current_level: usize = 0;
+            let mut current_index = index;
+            loop {
+                if current_level == TREE_HEIGHT {
+                    break;
+                }
+                let shift = pow2_u128(current_level);
+                let is_left_u128 = (current_index.low / shift) % 2_u128;
+                let is_left = is_left_u128.into();
+                let sibling_hash = if is_left == 0 {
+                    let sibling_index = current_index + pow2_u256(current_level);
+                    self.compute_hash_at_index(sibling_index, TREE_HEIGHT - current_level - 1)  // Recurse for subtree depth
+                } else {
+                    let sibling_index = current_index - pow2_u256(current_level);
+                    self.compute_hash_at_index(sibling_index, TREE_HEIGHT - current_level - 1)
+                };
+                siblings.append(sibling_hash);
+                current_level += 1;
+            };
+            siblings
+        }
     }
 
     #[generate_trait]
     pub impl Internal of InternalTrait {
+        // Base: If depth=0 (leaf), return commitment; else hash left + right child.
+        fn compute_hash_at_index(ref self: ContractState, mut node_index: u256, remaining_depth: usize) -> felt252 {
+            if remaining_depth == 0 {
+                // Leaf: Lookup commitment
+                let commitments_count = self._commitments_count.read();
+                if node_index >= commitments_count {
+                    ZERO_COMMITMENT
+                } else {
+                    self._commitments.read(node_index)
+                }
+            } else {
+                // Internal node: Recurse left (2*index) và right (2*index+1)
+                let left_hash = self.compute_hash_at_index(node_index * 2_u256, remaining_depth - 1);
+                let right_hash = self.compute_hash_at_index(node_index * 2_u256 + 1_u256, remaining_depth - 1);
+                // Hash Poseidon left + right 
+                let mut hash_input = ArrayTrait::<felt252>::new();
+                hash_input.append(left_hash);
+                hash_input.append(right_hash);
+                poseidon_hash_span(hash_input.span())
+            }
+        }
+
         fn append_commitment(ref self: ContractState, commitment: felt252) {
             let next_leaf_index = self._commitments_count.read();
             let max_leaves = pow2_u256(TREE_HEIGHT);

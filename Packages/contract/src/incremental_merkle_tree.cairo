@@ -104,7 +104,9 @@ pub impl IncrementalMerkleTreeImpl of IncrementalMerkleTreeTrait {
         *self.root
     }
 
-    fn get_path_for_index(self: @IncrementalMerkleTree, index: u256) -> Option<MerklePath> {
+    fn get_path_for_index(
+        self: @IncrementalMerkleTree, index: u256, commitments: @Array<felt252>
+    ) -> Option<MerklePath> {
         if *self.next_leaf_index <= index {
             return Option::None(());
         }
@@ -122,15 +124,17 @@ pub impl IncrementalMerkleTreeImpl of IncrementalMerkleTreeTrait {
                 let sibling_index = current_index + pow2_u256(current_level);
                 if sibling_index >= *self.next_leaf_index {
                     ZERO_COMMITMENT
+                } else if sibling_index.low < commitments.len().into() {
+                    *commitments.at(sibling_index.low.try_into().unwrap())
                 } else {
-                    ZERO_COMMITMENT // Placeholder
+                    ZERO_COMMITMENT
                 }
             } else {
                 let sibling_index = current_index - pow2_u256(current_level);
-                if sibling_index >= *self.next_leaf_index {
+                if sibling_index >= *self.next_leaf_index || sibling_index.low >= commitments.len().into() {
                     ZERO_COMMITMENT
                 } else {
-                    ZERO_COMMITMENT // Placeholder
+                    *commitments.at(sibling_index.low.try_into().unwrap())
                 }
             };
             siblings.append(sibling);
