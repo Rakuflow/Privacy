@@ -1,11 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use starknet::{ContractAddress, contract_address_const};
-    use core::array::ArrayTrait;
-    use core::traits::Into;
     use contract::shielded_pool_interface::{IShieldedPoolDispatcher, IShieldedPoolDispatcherTrait};
     use contract::utils_constants::ZERO_COMMITMENT;
-    use contract::utils_errors::{DEPOSIT_ZERO, INVALID_PROOF, INSUFFICIENT_VALUE};
+    use contract::utils_errors::{DEPOSIT_ZERO, INSUFFICIENT_VALUE, INVALID_PROOF};
+    use core::array::ArrayTrait;
+    use core::traits::Into;
+    use starknet::{ContractAddress, contract_address_const};
 
     fn mock_pool() -> IShieldedPoolDispatcher {
         IShieldedPoolDispatcher { contract_address: contract_address_const::<456>() }
@@ -27,7 +27,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('DEPOSIT_ZERO', ))]
+    #[should_panic(expected: ('DEPOSIT_ZERO',))]
     fn test_shielded_pool_deposit_zero() {
         let pool = mock_pool();
         pool.deposit(0_u256, 1_felt252, 2_felt252, 3_felt252);
@@ -40,7 +40,9 @@ mod tests {
         pool.deposit(100_u256, 1_felt252, 2_felt252, 3_felt252);
 
         let mut proof = ArrayTrait::<felt252>::new();
-        proof.append(1); proof.append(2); proof.append(3);
+        proof.append(1);
+        proof.append(2);
+        proof.append(3);
 
         let mut public_inputs = ArrayTrait::<felt252>::new();
         public_inputs.append(pool.get_merkle_root());
@@ -55,7 +57,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('INVALID_PROOF', ))]
+    #[should_panic(expected: ('INVALID_PROOF',))]
     fn test_shielded_pool_transfer_invalid() {
         let pool = mock_pool();
 
@@ -71,7 +73,9 @@ mod tests {
         pool.deposit(100_u256, 1_felt252, 2_felt252, 3_felt252);
 
         let mut proof = ArrayTrait::<felt252>::new();
-        proof.append(1); proof.append(2); proof.append(3);
+        proof.append(1);
+        proof.append(2);
+        proof.append(3);
 
         let mut public_inputs = ArrayTrait::<felt252>::new();
         public_inputs.append(pool.get_merkle_root());
@@ -88,12 +92,14 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('INSUFFICIENT_VALUE', ))]
+    #[should_panic(expected: ('INSUFFICIENT_VALUE',))]
     fn test_shielded_pool_withdraw_insufficient() {
         let pool = mock_pool();
 
         let mut proof = ArrayTrait::<felt252>::new();
-        proof.append(1); proof.append(2); proof.append(3);
+        proof.append(1);
+        proof.append(2);
+        proof.append(3);
         let mut public_inputs = ArrayTrait::<felt252>::new();
         public_inputs.append(ZERO_COMMITMENT);
         public_inputs.append(999_felt252);

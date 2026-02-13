@@ -28,7 +28,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('TREE_FULL', ))]
+    #[should_panic(expected: ('TREE_FULL',))]
     fn test_merkle_tree_full() {
         let mut tree = IncrementalMerkleTreeTrait::new();
         let max_leaves = pow2_u256(TREE_HEIGHT);
@@ -39,7 +39,7 @@ mod tests {
             }
             tree.append_leaf(1_felt252);
             i += 1_u256;
-        };
+        }
         tree.append_leaf(1_felt252);
     }
 
@@ -55,7 +55,7 @@ mod tests {
                 assert(path.siblings.len() == TREE_HEIGHT, 'Path wrong length');
             },
             Option::None => assert(false, 'Path should not exist'),
-        };
+        }
 
         let invalid_option = tree.get_path_for_index(10_u256);
         match invalid_option {

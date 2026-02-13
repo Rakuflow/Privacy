@@ -14,13 +14,13 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('INVALID_COMMITMENT', ))]
+    #[should_panic(expected: ('INVALID_COMMITMENT',))]
     fn test_note_new_invalid_value() {
         NoteTrait::new(0_u256, 1_felt252, 2_felt252, 3_felt252);
     }
 
     #[test]
-    #[should_panic(expected: ('INSUFFICIENT_VALUE', ))]
+    #[should_panic(expected: ('INSUFFICIENT_VALUE',))]
     fn test_note_split_invalid() {
         let note = NoteTrait::new(100_u256, 1_felt252, 2_felt252, 3_felt252);
         let _ = note.split(200_u256);

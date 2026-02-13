@@ -15,13 +15,13 @@ mod tests {
             }
             siblings.append(ZERO_COMMITMENT);
             i += 1;
-        };
+        }
         let path = MerklePathTrait::new(siblings, 0_u256);
         assert(path.siblings.len() == TREE_HEIGHT, 'Siblings wrong length');
     }
 
     #[test]
-    #[should_panic(expected: ('INVALID_PATH', ))]
+    #[should_panic(expected: ('INVALID_PATH',))]
     fn test_merkle_path_new_invalid_length() {
         let mut siblings = ArrayTrait::<felt252>::new();
         siblings.append(1_felt252);
