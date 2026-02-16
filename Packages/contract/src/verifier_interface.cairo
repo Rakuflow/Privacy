@@ -1,6 +1,3 @@
-use core::array::ArrayTrait;
-use starknet::ContractAddress;
-
 #[starknet::interface]
 pub trait IVerifier<TContractState> {
     fn verify_shielded_transfer(

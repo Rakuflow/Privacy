@@ -41,10 +41,8 @@ pub impl NoteImpl of NoteTrait {
         rcm_remain_hasher.append(1_felt252);
         let rcm_remain = poseidon_hash_span(rcm_remain_hasher.span());
 
-        let note_split = NoteImpl::new(split_value, rho_split, rcm_split, *self.spending_key);
-        let note_remain = NoteImpl::new(
-            remaining_value, rho_remain, rcm_remain, *self.spending_key,
-        );
+        let note_split = Self::new(split_value, rho_split, rcm_split, *self.spending_key);
+        let note_remain = Self::new(remaining_value, rho_remain, rcm_remain, *self.spending_key);
         (note_split, note_remain)
     }
 

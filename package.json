@@ -4,10 +4,6 @@
   "description": "",
   "main": "index.js",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "dev:backend": "turbo run dev --filter=backend",
     "dev:frontend": "turbo run dev --filter=frontend",
@@ -27,5 +23,9 @@
     "prettier": "^3.8.1",
     "turbo": "^2.8.5",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "get-starknet": "^3.3.3",
+    "starknet": "^5.29.0"
   }
 }

@@ -1,0 +1,4 @@
+[sncast.default]
+url = "https://starknet-sepolia.g.alchemy.com/v2/9Lwh6YBXUMo2Y8U1X0KWK"  # RPC Sepolia
+accounts-file = "~/.starknet_accounts/starknet_accounts.json"  
+account = "my_account"  
