@@ -1,0 +1,241 @@
+[
+  {
+    "type": "impl",
+    "name": "ShieldedPoolImpl",
+    "interface_name": "contract::shielded_pool_interface::IShieldedPool"
+  },
+  {
+    "type": "struct",
+    "name": "core::integer::u256",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "core::bool",
+    "variants": [
+      {
+        "name": "False",
+        "type": "()"
+      },
+      {
+        "name": "True",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "interface",
+    "name": "contract::shielded_pool_interface::IShieldedPool",
+    "items": [
+      {
+        "type": "function",
+        "name": "deposit",
+        "inputs": [
+          {
+            "name": "amount",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "rho",
+            "type": "core::felt252"
+          },
+          {
+            "name": "rcm",
+            "type": "core::felt252"
+          },
+          {
+            "name": "spending_key",
+            "type": "core::felt252"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "shielded_transfer",
+        "inputs": [
+          {
+            "name": "proof",
+            "type": "core::array::Array::<core::felt252>"
+          },
+          {
+            "name": "public_inputs",
+            "type": "core::array::Array::<core::felt252>"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "withdraw",
+        "inputs": [
+          {
+            "name": "proof",
+            "type": "core::array::Array::<core::felt252>"
+          },
+          {
+            "name": "public_inputs",
+            "type": "core::array::Array::<core::felt252>"
+          },
+          {
+            "name": "recipient",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "get_merkle_root",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::felt252"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "get_merkle_path",
+        "inputs": [
+          {
+            "name": "index",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::array::Array::<core::felt252>"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "is_nullifier_spent",
+        "inputs": [
+          {
+            "name": "nullifier_hash",
+            "type": "core::felt252"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::bool"
+          }
+        ],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "type": "constructor",
+    "name": "constructor",
+    "inputs": [
+      {
+        "name": "verifier",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "token",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "contract::shielded_pool::ShieldedPool::DepositEvent",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "commitment",
+        "type": "core::felt252",
+        "kind": "key"
+      },
+      {
+        "name": "leaf_index",
+        "type": "core::integer::u256",
+        "kind": "key"
+      },
+      {
+        "name": "amount",
+        "type": "core::integer::u256",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "contract::shielded_pool::ShieldedPool::TransferEvent",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "nullifier_hash",
+        "type": "core::felt252",
+        "kind": "key"
+      },
+      {
+        "name": "commitment_out",
+        "type": "core::felt252",
+        "kind": "key"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "contract::shielded_pool::ShieldedPool::WithdrawEvent",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "nullifier_hash",
+        "type": "core::felt252",
+        "kind": "key"
+      },
+      {
+        "name": "recipient",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "key"
+      },
+      {
+        "name": "amount",
+        "type": "core::integer::u256",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "contract::shielded_pool::ShieldedPool::Event",
+    "kind": "enum",
+    "variants": [
+      {
+        "name": "DepositEvent",
+        "type": "contract::shielded_pool::ShieldedPool::DepositEvent",
+        "kind": "nested"
+      },
+      {
+        "name": "TransferEvent",
+        "type": "contract::shielded_pool::ShieldedPool::TransferEvent",
+        "kind": "nested"
+      },
+      {
+        "name": "WithdrawEvent",
+        "type": "contract::shielded_pool::ShieldedPool::WithdrawEvent",
+        "kind": "nested"
+      }
+    ]
+  }
+]
