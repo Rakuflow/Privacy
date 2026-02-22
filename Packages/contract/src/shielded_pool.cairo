@@ -122,7 +122,7 @@ mod ShieldedPool {
             proof: Array<felt252>,
             public_inputs: Array<felt252>,
         ) {
-            assert(proof.len() >= 1 && public_inputs.len() == 3, INVALID_PROOF);
+            assert(proof.len() >= 1 && public_inputs.len() == 4, INVALID_PROOF);
 
             let verifier = IVerifierDispatcher { contract_address: self._verifier.read() };
             assert(verifier.verify_shielded_transfer(proof, public_inputs.clone()), INVALID_PROOF);
@@ -130,6 +130,7 @@ mod ShieldedPool {
             let root = *public_inputs.at(0);
             let nullifier_hash = *public_inputs.at(1);
             let new_commitment = *public_inputs.at(2);
+            let amount: felt252 = *public_inputs.at(3); 
 
             assert(self._merkle_root.read() == root, INVALID_ROOT);
             assert(!self._nullifiers.entry(nullifier_hash).read(), NULLIFIER_SPENT);
