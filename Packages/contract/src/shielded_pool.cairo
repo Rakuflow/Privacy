@@ -1,18 +1,12 @@
-use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use starknet::{get_caller_address, get_contract_address, ContractAddress};
-use core::array::{ArrayTrait};
-use core::integer::{u256, u128};
+use core::array::ArrayTrait;
+use core::integer::{u128, u256};
 use core::num::traits::Zero;
 use core::option::OptionTrait;
 use core::poseidon::poseidon_hash_span;
 use core::traits::{Into, TryInto};
-use starknet::storage::{
-    Map,
-    StoragePathEntry,               
-    StoragePointerReadAccess,
-    StoragePointerWriteAccess
-};
-
+use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use starknet::storage::{Map, StoragePathEntry, StoragePointerReadAccess, StoragePointerWriteAccess};
+use starknet::{ContractAddress, get_caller_address, get_contract_address};
 use crate::incremental_merkle_tree::{pow2_u128, pow2_u256};
 use crate::note::NoteTrait;
 use crate::shielded_pool_interface::IShieldedPool;
@@ -118,10 +112,13 @@ mod ShieldedPool {
         }
 
         fn shielded_transfer(
-            ref self: ContractState,
-            proof: Array<felt252>,
-            public_inputs: Array<felt252>,
+            ref self: ContractState, proof: Array<felt252>, public_inputs: Array<felt252>,
         ) {
+            // Expected public inputs:
+            // 0: root
+            // 1: nullifier_hash
+            // 2: new_commitment
+            // 3: amount
             assert(proof.len() >= 1 && public_inputs.len() == 4, INVALID_PROOF);
 
             let verifier = IVerifierDispatcher { contract_address: self._verifier.read() };
@@ -130,17 +127,27 @@ mod ShieldedPool {
             let root = *public_inputs.at(0);
             let nullifier_hash = *public_inputs.at(1);
             let new_commitment = *public_inputs.at(2);
-            let amount: felt252 = *public_inputs.at(3); 
+            let _amount = *public_inputs.at(3);
 
+            // Validate Merkle root (latest root model)
             assert(self._merkle_root.read() == root, INVALID_ROOT);
+
+            // Prevent double spend
             assert(!self._nullifiers.entry(nullifier_hash).read(), NULLIFIER_SPENT);
+
+            // Mark nullifier as spent
             self._nullifiers.entry(nullifier_hash).write(true);
 
+            // Append new commitment
             let new_index = self._commitments_count.read();
             self._commitments.entry(new_index).write(new_commitment);
             self.append_commitment(new_commitment);
 
-            self.emit(Event::TransferEvent(TransferEvent { nullifier_hash, commitment_out: new_commitment }));
+            self.emit(
+                Event::TransferEvent(
+                    TransferEvent { nullifier_hash, commitment_out: new_commitment },
+                ),
+            );
         }
 
         fn withdraw(
@@ -213,9 +220,7 @@ mod ShieldedPool {
     #[generate_trait]
     impl Internal of InternalTrait {
         fn compute_hash_at_index(
-            self: @ContractState,
-            mut node_index: u256,
-            remaining_depth: usize,
+            self: @ContractState, mut node_index: u256, remaining_depth: usize,
         ) -> felt252 {
             if remaining_depth == 0 {
                 let commitments_count = self._commitments_count.read();
@@ -225,8 +230,10 @@ mod ShieldedPool {
                     self._commitments.entry(node_index).read()
                 }
             } else {
-                let left_hash = self.compute_hash_at_index(node_index * 2_u256, remaining_depth - 1);
-                let right_hash = self.compute_hash_at_index(node_index * 2_u256 + 1_u256, remaining_depth - 1);
+                let left_hash = self
+                    .compute_hash_at_index(node_index * 2_u256, remaining_depth - 1);
+                let right_hash = self
+                    .compute_hash_at_index(node_index * 2_u256 + 1_u256, remaining_depth - 1);
                 let mut hash_input = array![left_hash, right_hash];
                 poseidon_hash_span(hash_input.span())
             }
