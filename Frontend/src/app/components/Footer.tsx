@@ -1,5 +1,6 @@
 import { Shield, Github, Twitter, BookOpen, FileText } from 'lucide-react';
 import { Link } from 'react-router';
+import { WALLET_URLS, EXPLORER_URLS, OTHER_URLS } from '../../config/urls';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -28,29 +29,19 @@ export function Footer() {
             <h3 className="text-sm font-semibold mb-4 text-white">Resources</h3>
             <ul className="space-y-3">
               <li>
-                <a href="https://docs.starknet.io" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-violet-400 transition-colors inline-flex items-center gap-2">
+                <a href={OTHER_URLS.DOCUMENTATION} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-violet-400 transition-colors inline-flex items-center gap-2">
                   <BookOpen className="w-4 h-4" />
                   Documentation
                 </a>
               </li>
               <li>
-                <a
-                  href="https://github.com/starknet-io"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-gray-400 hover:text-violet-400 transition-colors inline-flex items-center gap-2"
-                >
+                <a href={OTHER_URLS.GITHUB} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-violet-400 transition-colors inline-flex items-center gap-2">
                   <Github className="w-4 h-4" />
                   GitHub Repository
                 </a>
               </li>
               <li>
-                <a
-                  href="https://sepolia.starkscan.co"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-gray-400 hover:text-violet-400 transition-colors inline-flex items-center gap-2"
-                >
+                <a href={EXPLORER_URLS.SEPOLIA} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-violet-400 transition-colors inline-flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Block Explorer
                 </a>
@@ -102,12 +93,7 @@ export function Footer() {
             <h3 className="text-sm font-semibold mb-4 text-white">Supported Wallets</h3>
             <ul className="space-y-3">
               <li>
-                <a
-                  href="https://www.argent.xyz/argent-x/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-gray-400 hover:text-violet-400 transition-colors inline-flex items-center gap-2"
-                >
+                <a href={WALLET_URLS.ARGENT_X} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-violet-400 transition-colors inline-flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
                     <span className="text-white text-xs font-bold">A</span>
                   </div>
@@ -115,7 +101,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="https://braavos.app/" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-violet-400 transition-colors inline-flex items-center gap-2">
+                <a href={WALLET_URLS.BRAAVOS} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-violet-400 transition-colors inline-flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                     <span className="text-white text-xs font-bold">B</span>
                   </div>
