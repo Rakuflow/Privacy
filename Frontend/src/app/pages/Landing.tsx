@@ -143,12 +143,12 @@ export function Landing() {
 
         <GlassCard className="p-0 overflow-hidden max-w-4xl mx-auto">
           <div className="relative" style={{ paddingTop: "56.25%" }}>
-            <iframe
-              className="absolute top-0 left-0 w-full h-full"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-              title="RakuShield Tutorial"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
+            <video
+              className="absolute top-0 left-0 w-full h-full mx-auto"
+              src="/src/assets/tutorial.mp4"
+              controls
+              muted
+              autoPlay={false}
             />
           </div>
         </GlassCard>
@@ -400,8 +400,8 @@ export function Landing() {
                   Garaga ZK Verifier
                 </h3>
                 <p className="text-sm text-gray-400">
-                  Efficient Groth16/Plonk proof verification optimized for
-                  Starknet's STARK proofs
+                  Efficient Noir proof verification optimized for Starknet's
+                  STARK proofs
                 </p>
               </div>
             </div>

@@ -1,19 +1,19 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { GlowButton } from "./GlowButton";
-import { TransactionStatusStepper, Step } from "./TransactionStatusStepper";
-import { useShieldedPool } from "../../hooks/useShieldedPool";
-import { useAccount } from "@starknet-react/core";
-import { toast } from "sonner";
-import { Loader2, Send, AlertCircle } from "lucide-react";
-import { safeWalletOperation, parseError, ErrorType } from "../../utils/errorHandling";
-import { TOKENS } from "../../contracts/config";
-import { getUnspentNotes, markNoteAsSpent, ShieldedNote, saveNote } from "../../utils/noteStorage";
-import { computeNullifierHash } from "../../utils/zkProofGenerator";
-import { generateRho, generateRcm } from "../../utils/zkKeypair";
-import { hash } from "starknet";
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { Label } from './ui/label';
+import { Input } from './ui/input';
+import { GlowButton } from './GlowButton';
+import { TransactionStatusStepper, Step } from './TransactionStatusStepper';
+import { useShieldedPool } from '../../hooks/useShieldedPool';
+import { useAccount } from '@starknet-react/core';
+import { toast } from 'sonner';
+import { Loader2, Send, AlertCircle } from 'lucide-react';
+import { safeWalletOperation, parseError, ErrorType } from '../../utils/errorHandling';
+import { TOKENS } from '../../contracts/config';
+import { getUnspentNotes, markNoteAsSpent, ShieldedNote, saveNote } from '../../utils/noteStorage';
+import { computeNullifierHash } from '../../utils/zkProofGenerator';
+import { generateRho, generateRcm } from '../../utils/zkKeypair';
+import { hash } from 'starknet';
 
 interface TransferModalProps {
   open: boolean;
@@ -35,8 +35,8 @@ interface GeneratedTransferProof {
 }
 
 export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalProps) {
-  const [recipientZk, setRecipientZk] = useState("");
-  const [amount, setAmount] = useState("");
+  const [recipientZk, setRecipientZk] = useState('');
+  const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [proofGenerated, setProofGenerated] = useState(false);
   const [generatedProof, setGeneratedProof] = useState<GeneratedTransferProof | null>(null);
@@ -44,11 +44,11 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
   const [availableNotes, setAvailableNotes] = useState<ShieldedNote[]>([]);
   const [shieldedBalance, setShieldedBalance] = useState<bigint>(0n);
   const [steps, setSteps] = useState<Step[]>([
-    { label: "Generate proof", status: "pending" },
-    { label: "Submit transfer", status: "pending" },
-    { label: "Confirm on-chain", status: "pending" },
+    { label: 'Generate proof', status: 'pending' },
+    { label: 'Submit transfer', status: 'pending' },
+    { label: 'Confirm', status: 'pending' },
   ]);
-  
+
   const { service, isConnected } = useShieldedPool();
   const { account } = useAccount();
 
@@ -64,9 +64,9 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
       setProofGenerated(false);
       setGeneratedProof(null);
       setSteps([
-        { label: "Generate proof", status: "pending" },
-        { label: "Submit transfer", status: "pending" },
-        { label: "Confirm on-chain", status: "pending" },
+        { label: 'Generate proof', status: 'pending' },
+        { label: 'Submit transfer', status: 'pending' },
+        { label: 'Confirm', status: 'pending' },
       ]);
     }
   }, [open, zkAddress]);
@@ -75,86 +75,69 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
     return (Number(balance) / 10 ** TOKENS.STRK.decimals).toFixed(4);
   };
 
-  const updateStep = (index: number, status: Step["status"]) => {
-    setSteps(prev => prev.map((step, i) => i === index ? { ...step, status } : step));
+  const updateStep = (index: number, status: Step['status']) => {
+    setSteps((prev) => prev.map((step, i) => (i === index ? { ...step, status } : step)));
   };
 
   const handleGenerateProof = async () => {
     if (!service || !isConnected || !zkAddress) {
-      toast.error("Please connect your wallet first");
+      toast.error('Please connect your wallet first');
       return;
     }
 
     if (!recipientZk || !amount) {
-      toast.error("Please fill in all fields");
+      toast.error('Please fill in all fields');
       return;
     }
 
-    if (!recipientZk.startsWith("0zk")) {
-      toast.error("Recipient must be a valid zk-address (0zk...)");
+    if (!recipientZk.startsWith('0zk')) {
+      toast.error('Recipient must be a valid zk-address (0zk...)');
       return;
     }
 
     // Validate zk-address length (should be 0zk + 64 hex chars)
     if (recipientZk.length < 10) {
-      toast.error("Invalid zk-address format");
+      toast.error('Invalid zk-address format');
       return;
     }
 
     const amountWei = BigInt(Math.floor(parseFloat(amount) * 10 ** TOKENS.STRK.decimals));
 
     if (amountWei > shieldedBalance) {
-      toast.error("Insufficient shielded balance");
+      toast.error('Insufficient shielded balance');
       return;
     }
 
-    const exactMatch = availableNotes.find(note => note.amount === amountWei);
-    
+    const exactMatch = availableNotes.find((note) => note.amount === amountWei);
+
     if (!exactMatch) {
-      toast.error(
-        `No exact match found. Available notes: ${availableNotes.map(n => formatBalance(n.amount)).join(", ")} STRK`,
-        { duration: 6000 }
-      );
+      toast.error(`No exact match found. Available notes: ${availableNotes.map((n) => formatBalance(n.amount)).join(', ')} STRK`, { duration: 6000 });
       return;
     }
 
     // Validate note has required fields
     if (!exactMatch.rho || !exactMatch.rcm || !exactMatch.spendingKey) {
-      toast.error("Invalid note data. Please re-deposit funds.");
+      toast.error('Invalid note data. Please re-deposit funds.');
       return;
     }
 
     setLoading(true);
-    updateStep(0, "active");
-    
+    updateStep(0, 'active');
+
     try {
       const merkleRoot = await service.getMerkleRoot();
-      const leafIndex = parseInt(exactMatch.leafIndex || "0");
-      const nullifierHash = computeNullifierHash(
-        exactMatch.spendingKey,
-        exactMatch.rho,
-        leafIndex
-      );
+      const leafIndex = parseInt(exactMatch.leafIndex || '0');
+      const nullifierHash = computeNullifierHash(exactMatch.spendingKey, exactMatch.rho, leafIndex);
 
-      const recipientZkFelt = "0x" + recipientZk.slice(3);
+      const recipientZkFelt = '0x' + recipientZk.slice(3);
       const newRho = generateRho();
       const newRcm = generateRcm();
-      
-      const newCommitment = hash.computePoseidonHashOnElements([
-        amountWei.toString(),
-        newRho,
-        newRcm,
-        recipientZkFelt,
-      ]);
 
-      const publicInputs = [
-        merkleRoot,
-        nullifierHash,
-        newCommitment,
-        "0x" + amountWei.toString(16),
-      ];
-      
-      const proof = ["0x1", "0x2", "0x3"];
+      const newCommitment = hash.computePoseidonHashOnElements([amountWei.toString(), newRho, newRcm, recipientZkFelt]);
+
+      const publicInputs = [merkleRoot, nullifierHash, newCommitment, '0x' + amountWei.toString(16)];
+
+      const proof = ['0x1', '0x2', '0x3'];
 
       const noteForRecipient = {
         amount: amountWei,
@@ -173,14 +156,14 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
 
       setSelectedNote(exactMatch);
       setProofGenerated(true);
-      updateStep(0, "completed");
-      
-      toast.success("Transfer proof generated!");
+      updateStep(0, 'completed');
+
+      toast.success('Transfer proof generated!');
     } catch (error: any) {
-      updateStep(0, "error");
+      updateStep(0, 'error');
       const parsedError = parseError(error);
       if (parsedError.shouldLog) {
-        console.error("Proof generation error:", error);
+        console.error('Proof generation error:', error);
       }
       if (parsedError.shouldNotify) {
         toast.error(parsedError.userMessage);
@@ -192,24 +175,24 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
 
   const handleTransfer = async () => {
     if (!service || !isConnected || !account || !zkAddress) {
-      toast.error("Please connect your wallet first");
+      toast.error('Please connect your wallet first');
       return;
     }
 
     if (!generatedProof || !selectedNote) {
-      toast.error("Please generate proof first");
+      toast.error('Please generate proof first');
       return;
     }
 
     setLoading(true);
-    updateStep(1, "active");
-    
+    updateStep(1, 'active');
+
     try {
       const isSpent = await service.isNullifierSpent(generatedProof.nullifierHash);
-      
+
       if (isSpent) {
-        toast.error("This note has already been spent!");
-        updateStep(1, "error");
+        toast.error('This note has already been spent!');
+        updateStep(1, 'error');
         setLoading(false);
         return;
       }
@@ -231,15 +214,15 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
       );
 
       if (!transferResult.success) {
-        updateStep(1, "error");
+        updateStep(1, 'error');
         setLoading(false);
         return;
       }
 
       const tx = transferResult.data!;
-      updateStep(1, "completed");
+      updateStep(1, 'completed');
       toast.success(`Transfer submitted! TX: ${tx.transaction_hash.slice(0, 10)}...`);
-      
+
       markNoteAsSpent(zkAddress, selectedNote.commitment);
       window.dispatchEvent(new CustomEvent('shieldedBalanceChanged'));
 
@@ -249,36 +232,39 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
         rcm: generatedProof.noteForRecipient.rcm,
         spendingKey: generatedProof.noteForRecipient.spendingKey,
         commitment: generatedProof.noteForRecipient.commitment,
-        leafIndex: "",
+        leafIndex: '',
         isSpent: false,
       });
 
-      updateStep(2, "active");
-      account.waitForTransaction(tx.transaction_hash, {
-        retryInterval: 5000,
-      }).then(() => {
-        updateStep(2, "completed");
-        toast.success("Shielded transfer confirmed!");
-        window.dispatchEvent(new CustomEvent('shieldedBalanceChanged'));
-      }).catch((err) => {
-        updateStep(2, "error");
-        const parsedError = parseError(err);
-        if (parsedError.shouldLog) {
-          console.error("Transaction confirmation error:", err);
-        }
-      });
-      
+      updateStep(2, 'active');
+      account
+        .waitForTransaction(tx.transaction_hash, {
+          retryInterval: 5000,
+        })
+        .then(() => {
+          updateStep(2, 'completed');
+          toast.success('Shielded transfer confirmed!');
+          window.dispatchEvent(new CustomEvent('shieldedBalanceChanged'));
+        })
+        .catch((err) => {
+          updateStep(2, 'error');
+          const parsedError = parseError(err);
+          if (parsedError.shouldLog) {
+            console.error('Transaction confirmation error:', err);
+          }
+        });
+
       setTimeout(() => {
         resetModal();
       }, 1000);
     } catch (error: any) {
-      updateStep(1, "error");
+      updateStep(1, 'error');
       const parsedError = parseError(error);
-      
+
       if (parsedError.shouldLog) {
-        console.error("Transfer error:", error);
+        console.error('Transfer error:', error);
       }
-      
+
       if (parsedError.shouldNotify) {
         toast.error(parsedError.userMessage);
       }
@@ -289,8 +275,8 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
 
   const resetModal = () => {
     onOpenChange(false);
-    setRecipientZk("");
-    setAmount("");
+    setRecipientZk('');
+    setAmount('');
     setProofGenerated(false);
     setGeneratedProof(null);
     setSelectedNote(null);
@@ -300,12 +286,8 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-md bg-gray-900/95 backdrop-blur-xl border-white/10 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-blue-400 bg-clip-text text-transparent">
-            Shielded Transfer
-          </DialogTitle>
-          <DialogDescription className="text-gray-400">
-            Send funds privately using zero-knowledge proofs
-          </DialogDescription>
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-blue-400 bg-clip-text text-transparent">Shielded Transfer</DialogTitle>
+          <DialogDescription className="text-gray-400">Send funds privately using zero-knowledge proofs</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
@@ -343,15 +325,8 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
           {/* Amount Input */}
           <div>
             <Label className="text-sm">Amount</Label>
-            <Input
-              type="number"
-              placeholder="0.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="mt-2 bg-white/5 border-white/10"
-              disabled={availableNotes.length === 0}
-            />
-            
+            <Input type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-2 bg-white/5 border-white/10" disabled={availableNotes.length === 0} />
+
             {/* Quick Select */}
             {availableNotes.length > 0 && (
               <div className="mt-2 p-2 bg-white/5 border border-white/10 rounded">
@@ -383,44 +358,33 @@ export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalPr
           {/* Privacy Notice */}
           {!loading && !proofGenerated && (
             <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
-              <p className="text-xs text-indigo-300">
-                🔒 On-chain observers will only see a nullifier and new commitment, not sender/receiver/amount.
-              </p>
+              <p className="text-xs text-indigo-300">🔒 On-chain observers will only see a nullifier and new commitment, not sender/receiver/amount.</p>
             </div>
           )}
 
           {/* Action Buttons */}
           <div className="space-y-2">
-            <GlowButton 
-              variant="secondary" 
-              className="w-full" 
-              disabled={!recipientZk || !amount || loading || availableNotes.length === 0 || proofGenerated} 
-              onClick={handleGenerateProof}
-            >
+            <GlowButton variant="secondary" className="w-full" disabled={!recipientZk || !amount || loading || availableNotes.length === 0 || proofGenerated} onClick={handleGenerateProof}>
               {loading && !proofGenerated ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Generating Proof...</span>
                 </>
               ) : proofGenerated ? (
-                "Proof Generated ✓"
+                'Proof Generated ✓'
               ) : (
-                "Generate Transfer Proof"
+                'Generate Transfer Proof'
               )}
             </GlowButton>
-            
-            <GlowButton 
-              className="w-full" 
-              disabled={!proofGenerated || loading} 
-              onClick={handleTransfer}
-            >
+
+            <GlowButton className="w-full" disabled={!proofGenerated || loading} onClick={handleTransfer}>
               {loading && proofGenerated ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Submitting...</span>
                 </>
               ) : (
-                "Execute Transfer"
+                'Execute Transfer'
               )}
             </GlowButton>
           </div>
