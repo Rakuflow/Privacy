@@ -1,0 +1,15 @@
+package-lock.json
+/node_modules
+/dist
+/build
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.DS_Store
+*.log
+*.tsbuildinfo
+*.cache
+.idea
+.vscode

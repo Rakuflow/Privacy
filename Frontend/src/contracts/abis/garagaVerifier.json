@@ -1,0 +1,73 @@
+[
+    {
+        "type": "impl",
+        "name": "VerifierImpl",
+        "interface_name": "contract::verifier_interface::IVerifier"
+    },
+    {
+        "type": "enum",
+        "name": "core::bool",
+        "variants": [
+            {
+                "name": "False",
+                "type": "()"
+            },
+            {
+                "name": "True",
+                "type": "()"
+            }
+        ]
+    },
+    {
+        "type": "interface",
+        "name": "contract::verifier_interface::IVerifier",
+        "items": [
+            {
+                "type": "function",
+                "name": "verify_shielded_transfer",
+                "inputs": [
+                    {
+                        "name": "proof",
+                        "type": "core::array::Array::<core::felt252>"
+                    },
+                    {
+                        "name": "public_inputs",
+                        "type": "core::array::Array::<core::felt252>"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "verify_withdraw",
+                "inputs": [
+                    {
+                        "name": "proof",
+                        "type": "core::array::Array::<core::felt252>"
+                    },
+                    {
+                        "name": "public_inputs",
+                        "type": "core::array::Array::<core::felt252>"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "contract::garaga_verifier::GaragaVerifier::Event",
+        "kind": "enum",
+        "variants": []
+    }
+]
