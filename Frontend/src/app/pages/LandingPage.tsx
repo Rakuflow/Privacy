@@ -15,7 +15,7 @@ export function LandingPage() {
           <div className="flex items-center gap-2">
             {/* <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-violet-500" /> */}
             <img src="/src/assets/Logo.png" alt="RakuShield Logo" className="w-6 h-6 sm:w-8 sm:h-8" />
-            <span className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">RakuShield</span>
+            <span className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">RakuShield</span>
           </div>
           <Link to="/app">
             <GlowButton>Launch App</GlowButton>

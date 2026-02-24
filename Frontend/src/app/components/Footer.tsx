@@ -10,9 +10,9 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-30">
           {/* About */}
           <div>
-            <div className="flex items-center gap- mb-4">
+            <div className="flex items-center gap-2 mb-4">
               <img src="/src/assets/Logo.png" alt="RakuShield Logo" className="w-5 h-5 sm:w-7 sm:h-7 rounded-2xl" />
-              <span className="text-lg font-bold bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">RakuShield</span>
+              <span className="text-lg font-bold bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">RakuShield</span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed mb-4">Privacy-first transfers on Starknet using zero-knowledge proofs. Keep your transactions private and secure.</p>
             {/* <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded-lg inline-flex">

@@ -87,7 +87,7 @@ export function HomePage() {
               </GlassCard>
             )}
 
-            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid sm:grid-cols-3 gap-3 sm:gap-4">
               {/* Public Address (0x...) */}
               <GlassCard className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -125,27 +125,27 @@ export function HomePage() {
                   )}
                 </div>
               </GlassCard>
-            </div>
 
-            {/* Wallet Balance Card - Hiển thị balance từ wallet */}
-            <GlassCard className="p-3 sm:p-4 relative">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs sm:text-sm text-gray-400">Wallet Balance (Public)</span>
-                    <button onClick={handleRefreshBalance} disabled={isRefreshingBalance} className="p-1 hover:bg-white/10 rounded transition-colors disabled:opacity-50" title="Refresh balance">
-                      <RefreshCw className={`w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 hover:text-purple-400 transition-colors ${isRefreshingBalance ? 'animate-spin' : ''}`} />
-                    </button>
+              {/* Wallet Balance Card */}
+              <GlassCard className="p-3 sm:p-4 relative">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs sm:text-sm text-gray-400">Wallet Balance</span>
+                      <button onClick={handleRefreshBalance} disabled={isRefreshingBalance} className="p-1 hover:bg-white/10 rounded transition-colors disabled:opacity-50" title="Refresh balance">
+                        <RefreshCw className={`w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 hover:text-purple-400 transition-colors ${isRefreshingBalance ? 'animate-spin' : ''}`} />
+                      </button>
+                    </div>
+                    <p className="text-lg sm:text-xl font-bold">{balanceLoading ? 'Loading...' : `${formatBalance(balance)} STRK`}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Available to deposit</p>
                   </div>
-                  <p className="text-xl sm:text-2xl font-bold">{balanceLoading ? 'Loading...' : `${formatBalance(balance)} STRK`}</p>
-                  <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Available to deposit</p>
+                  <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full" />
+                    <span className="text-[10px] sm:text-xs text-green-400">Starknet Sepolia</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-green-500/10 border border-green-500/20 rounded-lg">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full" />
-                  <span className="text-xs sm:text-sm text-green-400">Starknet Sepolia</span>
-                </div>
-              </div>
-            </GlassCard>
+              </GlassCard>
+            </div>
 
             <GlassCard className="p-4 sm:p-6">
               <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
@@ -188,7 +188,7 @@ export function HomePage() {
                   </GlowButton>
 
                   {/* Privacy Controls - Clear Keypair */}
-                  {isReady && (
+                  {/* {isReady && (
                     <div className="mt-6 sm:mt-8 pt-4 border-t border-white/10">
                       <h4 className="text-sm font-semibold mb-3 text-gray-400">Privacy</h4>
                       <button
@@ -203,7 +203,7 @@ export function HomePage() {
                         Clear Stored Keys
                       </button>
                     </div>
-                  )}
+                  )} */}
 
                   {/* Additional Info */}
                   <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-violet-500/10 border border-violet-500/20 rounded-lg">
