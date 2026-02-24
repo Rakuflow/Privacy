@@ -1,7 +1,7 @@
 import { Shield, Github, Twitter, BookOpen, FileText } from 'lucide-react';
 import { Link } from 'react-router';
 
-export function AppFooter() {
+export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (

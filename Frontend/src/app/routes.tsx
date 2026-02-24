@@ -1,20 +1,20 @@
-import { createBrowserRouter } from "react-router";
-import { Landing } from "./pages/Landing";
-import { AppPage } from "./pages/AppPage";
-import { RootLayout } from "./components/RootLayout";
+import { createBrowserRouter } from 'react-router';
+import { LandingPage } from './pages/LandingPage';
+import { HomePage } from './pages/HomePage';
+import { RootLayout } from './components/RootLayout';
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     Component: RootLayout,
     children: [
       {
         index: true,
-        Component: Landing,
+        Component: LandingPage,
       },
       {
-        path: "app",
-        Component: AppPage,
+        path: 'app',
+        Component: HomePage,
       },
     ],
   },

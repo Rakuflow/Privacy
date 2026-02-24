@@ -1,32 +1,23 @@
-import { Link } from "react-router";
-import { useAccount } from "@starknet-react/core";
-import { WalletButton } from "./WalletButton";
-import { Shield, ArrowLeft } from "lucide-react";
+import { Link } from 'react-router';
+import { useAccount } from '@starknet-react/core';
+import { WalletButton } from './WalletButton';
+import { Shield, ArrowLeft } from 'lucide-react';
 
 interface AppHeaderProps {
   showBackButton?: boolean;
 }
 
-export function AppHeader({ showBackButton = true }: AppHeaderProps) {
+export function Header({ showBackButton = true }: AppHeaderProps) {
   const { address } = useAccount();
 
   return (
     <nav className="border-b border-white/10 backdrop-blur-xl bg-white/5 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-4">
         {/* Logo */}
-        <Link
-          to="/"
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-        >
+        <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           {showBackButton && <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />}
-          <img
-            src="/src/assets/Logo.png"
-            alt="RakuShield Logo"
-            className="w-5 h-5 sm:w-7 sm:h-7"
-          />
-          <span className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-            RakuShield
-          </span>
+          <img src="/src/assets/Logo.png" alt="RakuShield Logo" className="w-5 h-5 sm:w-7 sm:h-7" />
+          <span className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">RakuShield</span>
         </Link>
 
         {/* Wallet Button / Address */}
