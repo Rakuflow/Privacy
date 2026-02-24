@@ -1,18 +1,11 @@
-import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { GlowButton } from './GlowButton';
-import { TransactionStatusStepper, Step } from './TransactionStatusStepper';
-import { useShieldedPool } from '../../hooks/useShieldedPool';
-import { useAccount } from '@starknet-react/core';
-import { useZkKeypair } from '../../contexts/ZkKeypairContext';
-import { toast } from 'sonner';
+import { TransactionStatusStepper } from './TransactionStatusStepper';
 import { Loader2, AlertCircle, ArrowDown, Info } from 'lucide-react';
-import { safeWalletOperation, parseError, ErrorType } from '../../utils/errorHandling';
-import { getUnspentNotes, markNoteAsSpent, ShieldedNote } from '../../utils/noteStorage';
-import { generateWithdrawalProof, verifyNoteCommitment } from '../../utils/zkProofGenerator';
 import { TOKENS } from '../../contracts/config';
+import { useWithdraw } from '../../hooks/useWithdraw';
 
 interface WithdrawModalProps {
   open: boolean;
@@ -20,406 +13,24 @@ interface WithdrawModalProps {
 }
 
 export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
-  const [amount, setAmount] = useState('');
-  const [recipient, setRecipient] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [proofGenerated, setProofGenerated] = useState(false);
-  const [generatedProof, setGeneratedProof] = useState<any>(null);
-  const [selectedNote, setSelectedNote] = useState<ShieldedNote | null>(null);
-  const [availableNotes, setAvailableNotes] = useState<ShieldedNote[]>([]);
-  const [shieldedBalance, setShieldedBalance] = useState<bigint>(0n);
-  const [useMultiNote, setUseMultiNote] = useState(false);
-  const [selectedNotes, setSelectedNotes] = useState<ShieldedNote[]>([]);
-  const [multiNoteProofs, setMultiNoteProofs] = useState<any[]>([]);
-  const [steps, setSteps] = useState<Step[]>([
-    { label: 'Generate proof', status: 'pending' },
-    { label: 'Submit withdrawal', status: 'pending' },
-    { label: 'Confirm', status: 'pending' },
-  ]);
-
-  const { service, isConnected } = useShieldedPool();
-  const { account, address } = useAccount();
-  const { keypair } = useZkKeypair();
-
-  useEffect(() => {
-    if (open && keypair?.zkAddress) {
-      const notes = getUnspentNotes(keypair.zkAddress);
-      setAvailableNotes(notes);
-      const balance = notes.reduce((sum, note) => sum + note.amount, 0n);
-      setShieldedBalance(balance);
-
-      if (!recipient && address) {
-        setRecipient(address);
-      }
-    }
-    if (!open) {
-      setProofGenerated(false);
-      setGeneratedProof(null);
-      setUseMultiNote(false);
-      setSelectedNotes([]);
-      setMultiNoteProofs([]);
-      setSteps([
-        { label: 'Generate proof', status: 'pending' },
-        { label: 'Submit withdrawal', status: 'pending' },
-        { label: 'Confirm', status: 'pending' },
-      ]);
-    }
-  }, [open, keypair?.zkAddress, address]);
-
-  const formatBalance = (balance: bigint) => {
-    return (Number(balance) / 10 ** TOKENS.STRK.decimals).toFixed(4);
-  };
-
-  const updateStep = (index: number, status: Step['status']) => {
-    setSteps((prev) => prev.map((step, i) => (i === index ? { ...step, status } : step)));
-  };
-
-  const findNotesCombination = (targetAmount: bigint): ShieldedNote[] | null => {
-    const sorted = [...availableNotes].sort((a, b) => Number(a.amount - b.amount));
-
-    const findCombination = (remaining: bigint, startIdx: number, current: ShieldedNote[]): ShieldedNote[] | null => {
-      if (remaining === 0n) return current;
-      if (remaining < 0n || startIdx >= sorted.length) return null;
-
-      const withCurrent = findCombination(remaining - sorted[startIdx].amount, startIdx + 1, [...current, sorted[startIdx]]);
-      if (withCurrent) return withCurrent;
-
-      return findCombination(remaining, startIdx + 1, current);
-    };
-
-    return findCombination(targetAmount, 0, []);
-  };
-
-  const handleGenerateProof = async () => {
-    if (!service || !isConnected || !address) {
-      toast.error('Please connect your wallet first');
-      return;
-    }
-
-    if (!amount || !recipient) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-
-    const amountWei = BigInt(Math.floor(parseFloat(amount) * 10 ** TOKENS.STRK.decimals));
-
-    if (amountWei > shieldedBalance) {
-      toast.error('Insufficient shielded balance');
-      return;
-    }
-
-    const exactMatch = availableNotes.find((note) => note.amount === amountWei);
-
-    if (exactMatch) {
-      setUseMultiNote(false);
-      await generateSingleNoteProof(exactMatch);
-    } else {
-      const combination = findNotesCombination(amountWei);
-
-      if (!combination || combination.length === 0) {
-        toast.error(`Cannot withdraw ${formatBalance(amountWei)} STRK. No combination found.`, { duration: 6000 });
-        return;
-      }
-
-      setUseMultiNote(true);
-      await generateMultiNoteProofs(combination);
-    }
-  };
-
-  const generateSingleNoteProof = async (noteToSpend: ShieldedNote) => {
-    setLoading(true);
-    updateStep(0, 'active');
-
-    try {
-      if (!verifyNoteCommitment(noteToSpend)) {
-        toast.error('Invalid note commitment.');
-        updateStep(0, 'error');
-        setLoading(false);
-        return;
-      }
-
-      const merkleRoot = await service.getMerkleRoot();
-      const proof = await generateWithdrawalProof(noteToSpend, merkleRoot, recipient);
-
-      toast.success('Withdrawal proof generated!');
-      updateStep(0, 'completed');
-      setProofGenerated(true);
-      setGeneratedProof(proof);
-      setSelectedNote(noteToSpend);
-    } catch (error: any) {
-      updateStep(0, 'error');
-      const parsedError = parseError(error);
-      if (parsedError.shouldLog) {
-        console.error('Proof generation error:', error);
-      }
-      if (parsedError.shouldNotify) {
-        toast.error(parsedError.userMessage);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const generateMultiNoteProofs = async (notes: ShieldedNote[]) => {
-    setLoading(true);
-    updateStep(0, 'active');
-
-    try {
-      for (const note of notes) {
-        if (!verifyNoteCommitment(note)) {
-          toast.error('Invalid note commitment detected.');
-          updateStep(0, 'error');
-          setLoading(false);
-          return;
-        }
-      }
-
-      const merkleRoot = await service.getMerkleRoot();
-
-      const proofs = [];
-      for (let i = 0; i < notes.length; i++) {
-        const proof = await generateWithdrawalProof(notes[i], merkleRoot, recipient);
-        proofs.push(proof);
-      }
-
-      const totalAmount = notes.reduce((sum, note) => sum + note.amount, 0n);
-      toast.success(`✓ Generated ${notes.length} proofs for ${formatBalance(totalAmount)} STRK!`, { duration: 5000 });
-
-      updateStep(0, 'completed');
-      setProofGenerated(true);
-      setSelectedNotes(notes);
-      setMultiNoteProofs(proofs);
-    } catch (error: any) {
-      updateStep(0, 'error');
-      const parsedError = parseError(error);
-      if (parsedError.shouldLog) {
-        console.error('Multi-proof generation error:', error);
-      }
-      if (parsedError.shouldNotify) {
-        toast.error(parsedError.userMessage);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleWithdraw = async () => {
-    if (!service || !isConnected || !account || !address) {
-      toast.error('Please connect your wallet first');
-      return;
-    }
-
-    if (!proofGenerated) {
-      toast.error('Please generate proof first');
-      return;
-    }
-
-    if (useMultiNote) {
-      await executeMultiNoteWithdrawal();
-    } else {
-      await executeSingleNoteWithdrawal();
-    }
-  };
-
-  const executeSingleNoteWithdrawal = async () => {
-    if (!generatedProof || !selectedNote) {
-      toast.error('Proof data missing');
-      return;
-    }
-
-    setLoading(true);
-    updateStep(1, 'active');
-
-    try {
-      const isSpent = await service.isNullifierSpent(generatedProof.nullifierHash);
-
-      if (isSpent) {
-        toast.error('This note has already been spent!');
-        updateStep(1, 'error');
-        setLoading(false);
-        return;
-      }
-
-      const withdrawResult = await safeWalletOperation(
-        async () => {
-          return await service.withdraw({
-            proof: generatedProof.proof,
-            publicInputs: generatedProof.publicInputs,
-            recipient,
-          });
-        },
-        {
-          onError: (error) => {
-            if (error.type !== ErrorType.USER_REJECTED && error.shouldNotify) {
-              toast.error(error.userMessage);
-            }
-          },
-        }
-      );
-
-      if (!withdrawResult.success) {
-        updateStep(1, 'error');
-        setLoading(false);
-        return;
-      }
-
-      const tx = withdrawResult.data!;
-      updateStep(1, 'completed');
-      toast.success(`Withdrawal submitted! TX: ${tx.transaction_hash.slice(0, 10)}...`);
-
-      if (keypair?.zkAddress) {
-        markNoteAsSpent(keypair.zkAddress, selectedNote.commitment);
-        window.dispatchEvent(new CustomEvent('shieldedBalanceChanged'));
-      }
-
-      updateStep(2, 'active');
-      account
-        .waitForTransaction(tx.transaction_hash, {
-          retryInterval: 5000,
-        })
-        .then(() => {
-          updateStep(2, 'completed');
-          toast.success('Withdrawal confirmed!');
-        })
-        .catch((err) => {
-          updateStep(2, 'error');
-          console.error('TX confirmation error:', err);
-        });
-
-      setTimeout(() => resetModal(), 1000);
-    } catch (error: any) {
-      updateStep(1, 'error');
-      const parsedError = parseError(error);
-      if (parsedError.shouldLog) {
-        console.error('Withdrawal error:', error);
-      }
-      if (parsedError.shouldNotify) {
-        toast.error(parsedError.userMessage);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const executeMultiNoteWithdrawal = async () => {
-    if (selectedNotes.length === 0 || multiNoteProofs.length === 0) {
-      toast.error('Multi-note proof data missing');
-      return;
-    }
-
-    setLoading(true);
-    updateStep(1, 'active');
-    const successfulWithdrawals: string[] = [];
-
-    try {
-      toast.info(`Starting ${selectedNotes.length} sequential withdrawals...`, {
-        duration: 3000,
-      });
-
-      for (let i = 0; i < selectedNotes.length; i++) {
-        const note = selectedNotes[i];
-        const proof = multiNoteProofs[i];
-
-        try {
-          const isSpent = await service.isNullifierSpent(proof.nullifierHash);
-          if (isSpent) {
-            toast.warning(`Note ${i + 1}/${selectedNotes.length} already spent, skipping...`);
-            continue;
-          }
-
-          toast.info(`Withdrawing note ${i + 1}/${selectedNotes.length}...`);
-
-          const withdrawResult = await safeWalletOperation(
-            async () => {
-              return await service.withdraw({
-                proof: proof.proof,
-                publicInputs: proof.publicInputs,
-                recipient,
-              });
-            },
-            {
-              onError: (error) => {
-                if (error.type !== ErrorType.USER_REJECTED && error.shouldNotify) {
-                  toast.error(`Note ${i + 1} failed: ${error.userMessage}`);
-                }
-              },
-            }
-          );
-
-          if (!withdrawResult.success) {
-            if (withdrawResult.error?.type === ErrorType.USER_REJECTED) {
-              toast.error('Withdrawal cancelled by user');
-              break;
-            }
-            continue;
-          }
-
-          const tx = withdrawResult.data!;
-          successfulWithdrawals.push(tx.transaction_hash);
-
-          if (keypair?.zkAddress) {
-            markNoteAsSpent(keypair.zkAddress, note.commitment);
-          }
-
-          toast.success(`Note ${i + 1}/${selectedNotes.length} withdrawn!`);
-
-          if (i < selectedNotes.length - 1) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-          }
-        } catch (error: any) {
-          console.error(`Note ${i + 1} withdrawal error:`, error);
-          const parsedError = parseError(error);
-          if (parsedError.type === ErrorType.USER_REJECTED) {
-            toast.error('Withdrawal cancelled');
-            break;
-          }
-        }
-      }
-
-      window.dispatchEvent(new CustomEvent('shieldedBalanceChanged'));
-
-      if (successfulWithdrawals.length === selectedNotes.length) {
-        updateStep(1, 'completed');
-        updateStep(2, 'completed');
-        toast.success(`🎉 All ${selectedNotes.length} withdrawals completed!`, {
-          duration: 5000,
-        });
-      } else if (successfulWithdrawals.length > 0) {
-        updateStep(1, 'completed');
-        toast.warning(`Completed ${successfulWithdrawals.length}/${selectedNotes.length} withdrawals.`, { duration: 6000 });
-      } else {
-        updateStep(1, 'error');
-        toast.error('All withdrawals failed');
-      }
-
-      if (successfulWithdrawals.length > 0) {
-        setTimeout(() => resetModal(), 1000);
-      }
-    } catch (error: any) {
-      updateStep(1, 'error');
-      const parsedError = parseError(error);
-      if (parsedError.shouldLog) {
-        console.error('Multi-withdrawal error:', error);
-      }
-      if (parsedError.shouldNotify) {
-        toast.error(parsedError.userMessage);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetModal = () => {
-    onOpenChange(false);
-    setAmount('');
-    setRecipient('');
-    setProofGenerated(false);
-    setGeneratedProof(null);
-    setSelectedNote(null);
-    setUseMultiNote(false);
-    setSelectedNotes([]);
-    setMultiNoteProofs([]);
-  };
+  const {
+    amount,
+    setAmount,
+    recipient,
+    setRecipient,
+    loading,
+    proofGenerated,
+    availableNotes,
+    shieldedBalance,
+    useMultiNote,
+    selectedNotes,
+    steps,
+    formatBalance,
+    handleGenerateProof,
+    handleWithdraw,
+    resetForm,
+    isCompleted,
+  } = useWithdraw(open);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -452,10 +63,17 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
           {/* Amount Input */}
           <div>
             <Label className="text-sm">Amount to Withdraw</Label>
-            <Input type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-2 bg-white/5 border-white/10" disabled={availableNotes.length === 0} />
+            <Input
+              type="number"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="mt-2 bg-white/5 border-white/10"
+              disabled={availableNotes.length === 0 || isCompleted}
+            />
 
             {/* Quick Select */}
-            {availableNotes.length > 0 && (
+            {availableNotes.length > 0 && !isCompleted && (
               <div className="mt-2 p-2 bg-white/5 border border-white/10 rounded">
                 <p className="text-xs text-gray-400 mb-1.5">Quick Select:</p>
                 <div className="flex flex-wrap gap-1.5">
@@ -480,7 +98,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
           {/* Recipient Input */}
           <div>
             <Label className="text-sm">Recipient Public Address</Label>
-            <Input placeholder="0x..." value={recipient} onChange={(e) => setRecipient(e.target.value)} className="mt-2 bg-white/5 border-white/10 font-mono text-sm" />
+            <Input placeholder="0x..." value={recipient} onChange={(e) => setRecipient(e.target.value)} className="mt-2 bg-white/5 border-white/10 font-mono text-sm" disabled={isCompleted} />
           </div>
 
           {/* Multi-Note Info */}
@@ -492,7 +110,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
           )}
 
           {/* Status Stepper */}
-          {(loading || proofGenerated) && (
+          {(loading || proofGenerated || steps[2].status === 'active' || isCompleted) && (
             <div className="p-3 bg-white/5 border border-white/10 rounded-lg">
               <p className="text-sm font-semibold mb-3 text-gray-300">Withdrawal Progress</p>
               <TransactionStatusStepper steps={steps} />
@@ -500,7 +118,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
           )}
 
           {/* Privacy Notice */}
-          {!loading && !proofGenerated && (
+          {!loading && !proofGenerated && steps[2].status === 'pending' && (
             <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
               <p className="text-xs text-purple-300">⚠️ Withdrawing will unshield funds. On-chain observers will see recipient & amount, but not which note was spent.</p>
             </div>
@@ -508,29 +126,42 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
 
           {/* Action Buttons */}
           <div className="space-y-2">
-            <GlowButton variant="secondary" className="w-full" disabled={!amount || !recipient || loading || availableNotes.length === 0 || proofGenerated} onClick={handleGenerateProof}>
-              {loading && !proofGenerated ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Generating Proof...</span>
-                </>
-              ) : proofGenerated ? (
-                `Proof${useMultiNote ? 's' : ''} Generated ✓`
-              ) : (
-                'Generate Withdrawal Proof'
-              )}
-            </GlowButton>
+            {!isCompleted ? (
+              <>
+                <GlowButton
+                  variant="secondary"
+                  className="w-full"
+                  disabled={!amount || !recipient || loading || availableNotes.length === 0 || proofGenerated || steps[2].status === 'active'}
+                  onClick={handleGenerateProof}
+                >
+                  {loading && !proofGenerated ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Generating Proof...</span>
+                    </>
+                  ) : proofGenerated ? (
+                    `Proof${useMultiNote ? 's' : ''} Generated ✓`
+                  ) : (
+                    'Generate Withdrawal Proof'
+                  )}
+                </GlowButton>
 
-            <GlowButton className="w-full" disabled={!proofGenerated || loading} onClick={handleWithdraw}>
-              {loading && proofGenerated ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>{useMultiNote ? `Executing ${selectedNotes.length} Withdrawals...` : 'Submitting...'}</span>
-                </>
-              ) : (
-                `Execute Withdrawal${useMultiNote ? ` (${selectedNotes.length} notes)` : ''}`
-              )}
-            </GlowButton>
+                <GlowButton className="w-full" disabled={!proofGenerated || loading || steps[1].status === 'completed' || steps[2].status === 'active'} onClick={handleWithdraw}>
+                  {loading && proofGenerated ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{useMultiNote ? `Executing ${selectedNotes.length} Withdrawals...` : 'Submitting...'}</span>
+                    </>
+                  ) : (
+                    `Execute Withdrawal${useMultiNote ? ` (${selectedNotes.length} notes)` : ''}`
+                  )}
+                </GlowButton>
+              </>
+            ) : (
+              <GlowButton className="w-full" onClick={resetForm}>
+                New Transaction
+              </GlowButton>
+            )}
           </div>
         </div>
       </DialogContent>
