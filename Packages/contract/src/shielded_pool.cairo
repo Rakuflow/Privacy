@@ -118,8 +118,8 @@ mod ShieldedPool {
             // 0: root
             // 1: nullifier_hash
             // 2: new_commitment
-            // 3: amount
-            assert(proof.len() >= 1 && public_inputs.len() == 4, INVALID_PROOF);
+            // 3: amount (optional)
+            assert(proof.len() >= 1 && public_inputs.len() == 3, INVALID_PROOF);
 
             let verifier = IVerifierDispatcher { contract_address: self._verifier.read() };
             assert(verifier.verify_shielded_transfer(proof, public_inputs.clone()), INVALID_PROOF);
@@ -127,7 +127,7 @@ mod ShieldedPool {
             let root = *public_inputs.at(0);
             let nullifier_hash = *public_inputs.at(1);
             let new_commitment = *public_inputs.at(2);
-            let _amount = *public_inputs.at(3);
+            // let _amount = *public_inputs.at(3); change to fee gas
 
             // Validate Merkle root (latest root model)
             assert(self._merkle_root.read() == root, INVALID_ROOT);

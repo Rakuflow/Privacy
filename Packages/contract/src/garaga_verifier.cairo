@@ -18,7 +18,7 @@ mod GaragaVerifier {
             // - Value conservation: old_value = new_value (+ fee)
             // - Range check value
             // - Nullifier don't leak spending key
-            if proof.len() != 3 || public_inputs.len() != 4 {
+            if proof.len() != 3 || public_inputs.len() != 3 {
                 return false;
             }
             true
