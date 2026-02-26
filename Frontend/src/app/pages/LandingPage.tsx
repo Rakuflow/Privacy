@@ -247,6 +247,9 @@ export function LandingPage() {
           <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto">Built with cutting-edge Starknet technologies for maximum security and scalability</p>
         </div>
 
+        <div>
+          <img src="/src/assets/SystemDesign.jpg" alt="System Design" className="w-full max-w-4xl mx-auto rounded-lg shadow-lg pb-5" />
+        </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Cairo Smart Contracts */}
           <GlassCard className="bg-gradient-to-br from-orange-500/5 to-orange-500/10 border-orange-500/20">
