@@ -1,18 +1,12 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "./ui/dialog";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { GlowButton } from "./GlowButton";
-import { TransactionStatusStepper } from "./TransactionStatusStepper";
-import { Loader2, Send, AlertCircle } from "lucide-react";
-import { TOKENS } from "../../contracts/config";
-import { useTransfer } from "../../hooks/useTransfer";
-import { RelayerInfo } from "./RelayerInfo";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { Label } from './ui/label';
+import { Input } from './ui/input';
+import { GlowButton } from './GlowButton';
+import { TransactionStatusStepper } from './TransactionStatusStepper';
+import { Loader2, Send, AlertCircle } from 'lucide-react';
+import { TOKENS } from '../../contracts/config';
+import { useTransfer } from '../../hooks/useTransfer';
+import { RelayerInfo } from './RelayerInfo';
 
 interface TransferModalProps {
   open: boolean;
@@ -20,11 +14,7 @@ interface TransferModalProps {
   zkAddress: string;
 }
 
-export function TransferModal({
-  open,
-  onOpenChange,
-  zkAddress,
-}: TransferModalProps) {
+export function TransferModal({ open, onOpenChange, zkAddress }: TransferModalProps) {
   const {
     recipientZk,
     setRecipientZk,
@@ -49,12 +39,8 @@ export function TransferModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-md bg-gray-900/95 backdrop-blur-xl border-white/10 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-blue-400 bg-clip-text text-transparent">
-            Shielded Transfer
-          </DialogTitle>
-          <DialogDescription className="text-gray-400">
-            Send funds privately using zero-knowledge proofs
-          </DialogDescription>
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-blue-400 bg-clip-text text-transparent">Shielded Transfer</DialogTitle>
+          <DialogDescription className="text-gray-400">Send funds privately using zero-knowledge proofs</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
@@ -65,21 +51,15 @@ export function TransferModal({
                 <Send className="w-4 h-4 text-indigo-400" />
                 <span className="text-sm text-gray-400">Shielded Balance</span>
               </div>
-              <span className="text-sm font-semibold text-white">
-                {formatBalance(shieldedBalance)} STRK
-              </span>
+              <span className="text-sm font-semibold text-white">{formatBalance(shieldedBalance)} STRK</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {availableNotes.length} unspent notes
-            </p>
+            <p className="text-xs text-gray-500 mt-1">{availableNotes.length} unspent notes</p>
           </div>
 
           {availableNotes.length === 0 && (
             <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg flex gap-2">
               <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-300">
-                No shielded funds. Deposit first.
-              </p>
+              <p className="text-sm text-amber-300">No shielded funds. Deposit first.</p>
             </div>
           )}
 
@@ -115,22 +95,14 @@ export function TransferModal({
                   {availableNotes.map((note, idx) => (
                     <button
                       key={idx}
-                      onClick={() =>
-                        setAmount(
-                          (
-                            Number(note.amount) / 10 ** TOKENS.STRK.decimals
-                          ).toString()
-                        )
-                      }
+                      onClick={() => setAmount((Number(note.amount) / 10 ** TOKENS.STRK.decimals).toString())}
                       className="px-2 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 rounded text-xs text-indigo-300 transition-colors"
                     >
                       {formatBalance(note.amount)}
                     </button>
                   ))}
                 </div>
-                <p className="text-xs text-amber-300 mt-1.5">
-                  ⚠️ Exact match required
-                </p>
+                <p className="text-xs text-amber-300 mt-1.5">⚠️ Exact match required</p>
               </div>
             )}
           </div>
@@ -141,18 +113,10 @@ export function TransferModal({
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-purple-300">
-                      🎭 Use Anonymous Relayer?
-                    </span>
-                    <span className="px-1.5 py-0.5 bg-green-500/20 border border-green-500/30 rounded text-xs text-green-300">
-                      AVAILABLE
-                    </span>
+                    <span className="text-sm font-semibold text-purple-300">🎭 Use Anonymous Relayer?</span>
+                    <span className="px-1.5 py-0.5 bg-green-500/20 border border-green-500/30 rounded text-xs text-green-300">AVAILABLE</span>
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {useRelayer
-                      ? "✅ Relayer will broadcast (your wallet hidden)"
-                      : "❌ You will broadcast directly (your wallet visible)"}
-                  </p>
+                  <p className="text-xs text-gray-400 mt-1">{useRelayer ? '✅ Relayer will broadcast (your wallet hidden)' : '❌ You will broadcast directly (your wallet visible)'}</p>
                 </div>
                 <button
                   onClick={() => setUseRelayer(!useRelayer)}
@@ -160,21 +124,15 @@ export function TransferModal({
                   className={`
                     relative inline-flex h-6 w-11 items-center rounded-full
                     transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                    ${
-                      useRelayer
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500"
-                        : "bg-gray-600"
-                    }
+                    ${useRelayer ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'bg-gray-600'}
                   `}
-                  title={
-                    useRelayer ? "Click to use direct submit" : "Click to use relayer"
-                  }
+                  title={useRelayer ? 'Click to use direct submit' : 'Click to use relayer'}
                 >
                   <span
                     className={`
                       inline-block h-4 w-4 transform rounded-full bg-white
                       transition-transform
-                      ${useRelayer ? "translate-x-6" : "translate-x-1"}
+                      ${useRelayer ? 'translate-x-6' : 'translate-x-1'}
                     `}
                   />
                 </button>
@@ -184,39 +142,19 @@ export function TransferModal({
               <div className="mt-2 p-2 bg-black/20 border border-white/10 rounded">
                 {useRelayer ? (
                   <div className="space-y-1">
-                    <p className="text-xs text-purple-200 font-semibold">
-                      ✅ Relayer Mode Active
-                    </p>
-                    <p className="text-xs text-purple-300/90">
-                      • Relayer broadcasts transaction (pays gas)
-                    </p>
-                    <p className="text-xs text-purple-300/90">
-                      • Explorer shows: From = Relayer address
-                    </p>
-                    <p className="text-xs text-purple-300/90">
-                      • You pay small fee (~0.001 STRK)
-                    </p>
-                    <p className="text-xs text-green-300 font-semibold mt-1">
-                      🎭 Maximum privacy (90%)
-                    </p>
+                    <p className="text-xs text-purple-200 font-semibold">✅ Relayer Mode Active</p>
+                    <p className="text-xs text-purple-300/90">• Relayer broadcasts transaction (pays gas)</p>
+                    <p className="text-xs text-purple-300/90">• Explorer shows: From = Relayer address</p>
+                    <p className="text-xs text-purple-300/90">• You pay small fee (~0.001 STRK)</p>
+                    <p className="text-xs text-green-300 font-semibold mt-1">🎭 Maximum privacy (90%)</p>
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    <p className="text-xs text-gray-300 font-semibold">
-                      ⚡ Direct Submit Mode
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      • Your wallet broadcasts transaction
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      • Explorer shows: From = Your address
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      • You pay gas directly
-                    </p>
-                    <p className="text-xs text-amber-300 font-semibold mt-1">
-                      ⚠️ Medium privacy (70%)
-                    </p>
+                    <p className="text-xs text-gray-300 font-semibold">⚡ Direct Submit Mode</p>
+                    <p className="text-xs text-gray-400">• Your wallet broadcasts transaction</p>
+                    <p className="text-xs text-gray-400">• Explorer shows: From = Your address</p>
+                    <p className="text-xs text-gray-400">• You pay gas directly</p>
+                    <p className="text-xs text-amber-300 font-semibold mt-1">⚠️ Medium privacy (70%)</p>
                   </div>
                 )}
               </div>
@@ -224,25 +162,17 @@ export function TransferModal({
           )}
 
           {/* Status Stepper */}
-          {(loading ||
-            proofGenerated ||
-            steps[2].status === "active" ||
-            isCompleted) && (
+          {(loading || proofGenerated || steps[2].status === 'active' || isCompleted) && (
             <div className="p-3 bg-white/5 border border-white/10 rounded-lg">
-              <p className="text-sm font-semibold mb-3 text-gray-300">
-                Transfer Progress
-              </p>
+              <p className="text-sm font-semibold mb-3 text-gray-300">Transfer Progress</p>
               <TransactionStatusStepper steps={steps} />
             </div>
           )}
 
           {/* Privacy Notice */}
-          {!loading && !proofGenerated && steps[2].status === "pending" && (
+          {!loading && !proofGenerated && steps[2].status === 'pending' && (
             <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
-              <p className="text-xs text-indigo-300">
-                🔒 On-chain observers will only see a nullifier and new
-                commitment, not sender/receiver/amount.
-              </p>
+              <p className="text-xs text-indigo-300">🔒 On-chain observers will only see a nullifier and new commitment, not sender/receiver/amount.</p>
             </div>
           )}
 
@@ -253,14 +183,7 @@ export function TransferModal({
                 <GlowButton
                   variant="secondary"
                   className="w-full"
-                  disabled={
-                    !recipientZk ||
-                    !amount ||
-                    loading ||
-                    availableNotes.length === 0 ||
-                    proofGenerated ||
-                    steps[2].status === "active"
-                  }
+                  disabled={!recipientZk || !amount || loading || availableNotes.length === 0 || proofGenerated || steps[2].status === 'active'}
                   onClick={handleGenerateProof}
                 >
                   {loading && !proofGenerated ? (
@@ -269,29 +192,20 @@ export function TransferModal({
                       <span>Generating Proof...</span>
                     </>
                   ) : proofGenerated ? (
-                    "Proof Generated ✓"
+                    'Proof Generated ✓'
                   ) : (
-                    "Generate Transfer Proof"
+                    'Generate Transfer Proof'
                   )}
                 </GlowButton>
 
-                <GlowButton
-                  className="w-full"
-                  disabled={
-                    !proofGenerated ||
-                    loading ||
-                    steps[1].status === "completed" ||
-                    steps[2].status === "active"
-                  }
-                  onClick={handleTransfer}
-                >
+                <GlowButton className="w-full" disabled={!proofGenerated || loading || steps[1].status === 'completed' || steps[2].status === 'active'} onClick={handleTransfer}>
                   {loading && proofGenerated ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Submitting...</span>
                     </>
                   ) : (
-                    "Execute Transfer"
+                    'Execute Transfer'
                   )}
                 </GlowButton>
               </>

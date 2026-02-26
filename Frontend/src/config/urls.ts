@@ -1,3 +1,5 @@
+import { env } from '../config/envConfig';
+
 // Wallet URLs
 export const WALLET_URLS = {
   ARGENT_X: 'https://www.ready.co/',
@@ -20,4 +22,9 @@ export const RPC_URLS = {
 export const OTHER_URLS = {
   GITHUB: 'https://github.com/Rakuflow/Privacy',
   DOCUMENTATION: 'https://docs.starknet.io',
+};
+
+// API Endpoints
+export const API_ENDPOINTS = {
+  BASE_URL: env.RELAYER_URL,
 };
