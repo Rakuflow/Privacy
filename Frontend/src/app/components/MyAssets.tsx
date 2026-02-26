@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useZkKeypair } from '../../contexts/ZkKeypairContext';
+import { getUnspentNotesAsync } from '../../utils/noteStorage';
 import { TOKENS } from '../../contracts/config';
 import { Wallet, Eye, EyeOff, Shield } from 'lucide-react';
 
@@ -22,6 +23,16 @@ export function MyAssets() {
     }
 
     loadingRef.current = true;
+    try {
+      const notes = await getUnspentNotesAsync(keypair.zkAddress);
+      const balance = notes.reduce((sum, note) => sum + note.amount, 0n);
+      setShieldedBalance(balance);
+      setNoteCount(notes.length);
+    } catch (error) {
+      console.error('Failed to refresh shielded assets:', error);
+    } finally {
+      loadingRef.current = false;
+    }
   };
 
   useEffect(() => {

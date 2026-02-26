@@ -144,15 +144,13 @@ export function useTransfer(open: boolean, zkAddress: string) {
 
       const newCommitment = hash.computePoseidonHashOnElements([amountWei.toString(), newRho, newRcm, recipientZkFelt]);
 
-      // Public inputs for mock verifier
-      // NOTE: In production ZK systems, amount should NOT be in public inputs
-      // However, the current mock contract expects 4 public inputs
-      // For true privacy, a real ZK circuit would keep amount hidden
+      // Public inputs for mock verifier.
+      const transferGasFeeWei = 0n;
       const publicInputs = [
         merkleRoot,
         nullifierHash,
         newCommitment,
-        '0x' + amountWei.toString(16), // Amount - visible on-chain in current mock
+        '0x' + transferGasFeeWei.toString(16), // Gas fee (public)
       ];
 
       const proof = ['0x1', '0x2', '0x3'];
