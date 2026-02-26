@@ -1,20 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useRef } from "react";
 import { useAccount } from "@starknet-react/core";
 import { saveZkKeypair, loadZkKeypair, clearZkKeypair } from "../utils/zkStorage";
-
-export interface ZkKeypair {
-  spendingKey: string;     // zk_spend_sk - Encoded in localStorage
-  spendingPubKey: string;  // zk_spend_pk - Encoded in localStorage
-  zkAddress: string;       // 0zk address - Encoded in localStorage
-  walletAddress: string;   // Track which wallet this keypair belongs to
-}
-
-interface ZkKeypairContextValue {
-  keypair: ZkKeypair | null;
-  setKeypair: (keypair: ZkKeypair | null) => void;
-  clearKeypair: () => void;
-  isReady: boolean;
-}
+import type { ZkKeypair, ZkKeypairContextValue } from "../types/ZkKeypair.type";
 
 const ZkKeypairContext = createContext<ZkKeypairContextValue | undefined>(undefined);
 

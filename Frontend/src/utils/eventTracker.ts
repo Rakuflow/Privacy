@@ -5,14 +5,8 @@
  * which is needed for generating Merkle proofs during withdrawal
  */
 
-import { ShieldedNote, getNotes, saveNote } from "./noteStorage";
-
-export interface DepositEventData {
-  commitment: string;
-  leafIndex: string;
-  amount: bigint;
-  transactionHash: string;
-}
+import { getNotes, saveNote } from "./noteStorage";
+import type { DepositEventData } from "../types/EventTracker.type";
 
 /**
  * Update note with leafIndex from DepositEvent

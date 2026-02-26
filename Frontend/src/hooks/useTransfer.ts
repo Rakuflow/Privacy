@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useAccount } from "@starknet-react/core";
 import { toast } from "sonner";
 import { hash } from "starknet";
-import { Step } from "../app/components/TransactionStatusStepper";
+import type { GeneratedTransferProof } from "../types/Proof.type";
+import type { ShieldedNote } from "../types/NoteStorage.type";
+import type { Step } from "../types/TransactionStatus.type";
 import {
   safeWalletOperation,
   parseError,
@@ -12,7 +14,6 @@ import { TOKENS } from "../contracts/config";
 import {
   getUnspentNotesAsync,
   markNoteAsSpent,
-  ShieldedNote,
   saveNote,
 } from "../utils/noteStorage";
 import { saveHistory } from "../utils/historyStorage";
@@ -24,19 +25,6 @@ import { generateRho, generateRcm } from "../utils/zkKeypair";
 import { useShieldedPool } from "./useShieldedPool";
 import { relayerService } from "../services/RelayerService";
 import { useZkKeypair } from "../contexts/ZkKeypairContext";
-
-interface GeneratedTransferProof {
-  proof: string[];
-  publicInputs: string[];
-  nullifierHash: string;
-  noteForRecipient: {
-    amount: bigint;
-    rho: string;
-    rcm: string;
-    commitment: string;
-  };
-  generatedBy?: string; // Address that generated the proof
-}
 
 export function useTransfer(open: boolean, zkAddress: string) {
   const [recipientZk, setRecipientZk] = useState("");

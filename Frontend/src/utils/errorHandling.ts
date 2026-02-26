@@ -3,6 +3,8 @@
  * Provides comprehensive error parsing and user-friendly messages
  */
 
+import type { ParsedError } from "../types/Error.type";
+
 export enum ErrorType {
   USER_REJECTED = 'USER_REJECTED',
   WALLET_LOCKED = 'WALLET_LOCKED',
@@ -10,14 +12,6 @@ export enum ErrorType {
   INSUFFICIENT_FUNDS = 'INSUFFICIENT_FUNDS',
   CONTRACT_ERROR = 'CONTRACT_ERROR',
   UNKNOWN = 'UNKNOWN',
-}
-
-export interface ParsedError {
-  type: ErrorType;
-  message: string;
-  userMessage: string;
-  shouldLog: boolean;
-  shouldNotify: boolean;
 }
 
 /**

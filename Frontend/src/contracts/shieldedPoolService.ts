@@ -1,23 +1,10 @@
 import { Account, RpcProvider, CallData } from "starknet";
 import { CONTRACTS } from "./config";
-
-export interface DepositParams {
-  amount: bigint;
-  rho: string;
-  rcm: string;
-  spendingKey: string;
-}
-
-export interface ShieldedTransferParams {
-  proof: string[];
-  publicInputs: string[];
-}
-
-export interface WithdrawParams {
-  proof: string[];
-  publicInputs: string[];
-  recipient: string;
-}
+import type {
+  DepositParams,
+  ShieldedTransferParams,
+  WithdrawParams,
+} from "../types/ShieldedPool.type";
 
 export class ShieldedPoolService {
   private provider: RpcProvider;

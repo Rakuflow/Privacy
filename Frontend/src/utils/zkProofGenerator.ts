@@ -6,13 +6,8 @@
  */
 
 import { hash } from "starknet";
-import { ShieldedNote } from "./noteStorage";
-
-export interface WithdrawalProof {
-  proof: string[];           // ZK proof elements (3 felts for mock verifier)
-  publicInputs: string[];    // Public inputs (5 felts: root, nullifier, amount_low, amount_high, recipient)
-  nullifierHash: string;     // To prevent double-spending
-}
+import type { ShieldedNote } from "../types/NoteStorage.type";
+import type { WithdrawalProof } from "../types/Proof.type";
 
 /**
  * Compute nullifier hash for a note

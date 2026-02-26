@@ -6,30 +6,11 @@
 import { Provider, Contract, hash } from "starknet";
 import { CONTRACTS, NETWORK } from "./config";
 import shieldedPoolAbi from "./abis/shieldedPool.json";
-
-export interface DepositEventData {
-  commitment: string;
-  leaf_index: string;
-  amount: string;
-  blockNumber: number;
-  transactionHash: string;
-}
-
-export interface TransferEventData {
-  nullifier_hash: string;
-  commitment_out: string;
-  blockNumber: number;
-  transactionHash: string;
-  // leaf_index needs to be computed by counting all commitments before this one
-}
-
-export interface WithdrawEventData {
-  nullifier_hash: string;
-  recipient: string;
-  amount: string;
-  blockNumber: number;
-  transactionHash: string;
-}
+import type {
+  DepositEventData,
+  TransferEventData,
+  WithdrawEventData,
+} from "../types/EventScanner.type";
 
 /**
  * Scan DepositEvent from contract

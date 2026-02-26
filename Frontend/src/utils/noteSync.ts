@@ -3,16 +3,10 @@
  * Syncs local notes with on-chain events to update balance
  */
 
-import { ShieldedNote, getUnspentNotesAsync, updateNoteLeafIndex } from "./noteStorage";
+import { getUnspentNotesAsync, updateNoteLeafIndex } from "./noteStorage";
 import { getAllCommitmentsOnChain, getSpentNullifiers } from "../contracts/eventScanner";
 import { computeNullifierHash, resolveNoteSpendingKey } from "./zkProofGenerator";
-
-export interface SyncResult {
-  totalNotes: number;
-  syncedNotes: number;
-  unconfirmedNotes: number;
-  balance: bigint;
-}
+import type { SyncResult } from "../types/Sync.type";
 
 /**
  * Sync notes with on-chain events

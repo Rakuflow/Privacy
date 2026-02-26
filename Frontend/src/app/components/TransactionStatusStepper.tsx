@@ -1,13 +1,6 @@
 import { Check, Loader2, X } from "lucide-react";
 import { cn } from "./ui/utils";
-
-export type StepStatus = "pending" | "active" | "completed" | "error";
-
-export interface Step {
-  label: string;
-  description?: string;
-  status: StepStatus;
-}
+import type { Step } from "../../types/TransactionStatus.type";
 
 interface TransactionStatusStepperProps {
   steps: Step[];

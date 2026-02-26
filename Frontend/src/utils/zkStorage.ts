@@ -6,7 +6,7 @@
  * For production, consider using Web Crypto API with user-provided password.
  */
 
-import type { ZkKeypair } from "../contexts/ZkKeypairContext";
+import type { ZkKeypair } from "../types/ZkKeypair.type";
 
 const STORAGE_PREFIX = "zkkeypair_";
 const STORAGE_VERSION = "v1";

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAccount } from "@starknet-react/core";
 import { toast } from "sonner";
-import { Step } from "../app/components/TransactionStatusStepper";
+import type { ShieldedNote } from "../types/NoteStorage.type";
+import type { Step } from "../types/TransactionStatus.type";
 import {
   safeWalletOperation,
   parseError,
@@ -11,7 +12,6 @@ import { TOKENS } from "../contracts/config";
 import {
   getUnspentNotesAsync,
   markNoteAsSpent,
-  ShieldedNote,
 } from "../utils/noteStorage";
 import { saveHistory } from "../utils/historyStorage";
 import {

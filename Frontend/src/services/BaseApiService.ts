@@ -3,17 +3,7 @@
  * Provides common HTTP methods and error handling for all services
  */
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  statusCode?: number;
-}
-
-export interface RequestOptions extends RequestInit {
-  timeout?: number;
-  retries?: number;
-}
+import type { ApiResponse, RequestOptions } from "../types/Api.type";
 
 export class BaseApiService {
   protected baseUrl: string;

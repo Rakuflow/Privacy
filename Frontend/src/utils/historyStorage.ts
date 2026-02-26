@@ -1,13 +1,5 @@
-import { historyService, HistoryEntry } from '../services/HistoryService';
-
-export interface TransactionHistory {
-  type: 'deposit' | 'received' | 'transfer' | 'withdraw';
-  transactionHash: string;
-  timestamp: number;
-  amount: bigint;
-  recipientZkAddress?: string;
-  recipientPublicAddress?: string;
-}
+import { historyService } from '../services/HistoryService';
+import type { TransactionHistory } from '../types/History.type';
 
 // Save history entry to backend
 export async function saveHistory(zkAddress: string, history: TransactionHistory): Promise<void> {

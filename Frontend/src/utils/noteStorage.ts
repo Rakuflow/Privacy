@@ -1,15 +1,5 @@
 import { noteService } from '../services/NoteService';
-
-export interface ShieldedNote {
-  amount: bigint;
-  rho: string;
-  rcm: string;
-  spendingKey?: string;
-  commitment: string;
-  leafIndex?: string;
-  isSpent?: boolean;
-  transactionHash?: string;
-}
+import type { ShieldedNote } from '../types/NoteStorage.type';
 
 function formatBalance(amount: bigint): string {
   return (Number(amount) / 1e18).toFixed(4);

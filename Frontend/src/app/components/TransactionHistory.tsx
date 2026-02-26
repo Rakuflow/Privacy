@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useZkKeypair } from "../../contexts/ZkKeypairContext";
 import {
   getHistory,
-  type TransactionHistory as TxHistory,
 } from "../../utils/historyStorage";
+import type { TransactionHistory as TxHistory } from "../../types/History.type";
 import { TOKENS } from "../../contracts/config";
 import {
   History,

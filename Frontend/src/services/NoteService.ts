@@ -1,25 +1,6 @@
 import { BaseApiService } from './BaseApiService';
 import { API_ENDPOINTS } from '../config/urls';
-
-export interface ShieldedNote {
-  commitment: string;
-  amount: string | number | bigint;
-  rho: string;
-  rcm: string;
-  isSpent: boolean | string | number;
-  leafIndex?: string;
-  transactionHash?: string;
-}
-
-interface SaveNoteRequest {
-  zkAddress: string;
-  commitment: string;
-  amount: string;
-  rho: string;
-  rcm: string;
-  leafIndex?: string;
-  transactionHash?: string;
-}
+import type { SaveNoteRequest, ShieldedNote } from '../types/NoteService.type';
 
 class NoteService extends BaseApiService {
   constructor() {

@@ -1,24 +1,6 @@
 import { BaseApiService } from './BaseApiService';
 import { API_ENDPOINTS } from '../config/urls';
-
-export interface HistoryEntry {
-  type: 'deposit' | 'transfer' | 'withdraw' | 'received';
-  transactionHash: string;
-  timestamp: number;
-  amount: bigint;
-  recipientZkAddress?: string;
-  recipientPublicAddress?: string;
-}
-
-interface SaveHistoryRequest {
-  zkAddress: string;
-  type: 'deposit' | 'transfer' | 'withdraw' | 'received';
-  transactionHash: string;
-  timestamp: number;
-  amount: string;
-  recipientZkAddress?: string;
-  recipientPublicAddress?: string;
-}
+import type { HistoryEntry, SaveHistoryRequest } from '../types/History.type';
 
 class HistoryService extends BaseApiService {
   constructor() {

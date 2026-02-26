@@ -4,7 +4,7 @@
  */
 
 import { saveZkKeypair, loadZkKeypair, clearZkKeypair } from './zkStorage';
-import type { ZkKeypair } from '../contexts/ZkKeypairContext';
+import type { ZkKeypair } from '../types/ZkKeypair.type';
 
 export function testZkStorage() {
   console.log("🧪 Testing zkStorage encoding/decoding...\n");
