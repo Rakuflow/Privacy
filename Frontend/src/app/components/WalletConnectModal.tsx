@@ -15,16 +15,8 @@ export function WalletConnectModal({ open, onOpenChange }: WalletConnectModalPro
   const { connect, connectors } = useConnect();
   const [connecting, setConnecting] = useState<string | null>(null);
 
-  // Debug: log connector info (not the full object to avoid circular refs)
-  console.log(
-    'Available connectors:',
-    connectors.length,
-    connectors.map((c) => ({ id: c.id, name: c.name }))
-  );
-
   const handleConnect = async (connector: any) => {
     setConnecting(connector.id);
-    console.log('Attempting to connect to:', connector.id, connector.name);
 
     // Check if wallet is available
     const isAvailable = connector.available ? await connector.available() : true;

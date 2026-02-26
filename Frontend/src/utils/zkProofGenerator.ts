@@ -83,7 +83,8 @@ function splitU256(amount: bigint): { low: string; high: string } {
 export async function generateWithdrawalProof(
   note: ShieldedNote,
   merkleRoot: string,
-  recipient: string
+  recipient: string,
+  spendingKey: string
 ): Promise<WithdrawalProof> {
   console.log("🔐 Generating withdrawal proof...");
   
@@ -91,7 +92,7 @@ export async function generateWithdrawalProof(
   // User must know spending_key to compute this correctly
   const leafIndex = parseInt(note.leafIndex || "0");
   const nullifierHash = computeNullifierHash(
-    note.spendingKey,
+    spendingKey,
     note.rho,
     leafIndex
   );
@@ -140,6 +141,10 @@ export async function generateWithdrawalProof(
  * Used to validate note before generating proof
  */
 export function verifyNoteCommitment(note: ShieldedNote): boolean {
+  if (!note.spendingKey) {
+    return false;
+  }
+
   const recomputedCommitment = hash.computePoseidonHashOnElements([
     note.amount.toString(),
     note.rho,
@@ -157,4 +162,37 @@ export function verifyNoteCommitment(note: ShieldedNote): boolean {
   }
   
   return isValid;
+}
+
+/**
+ * Resolve spending key for a note without reading it from backend.
+ * Priority:
+ * 1) Keypair spending key (private local key)
+ * 2) zkAddress felt (legacy transfer notes)
+ */
+export function resolveNoteSpendingKey(
+  note: Pick<ShieldedNote, "amount" | "rho" | "rcm" | "commitment">,
+  userSpendingKey: string,
+  zkAddress?: string
+): string {
+  const candidates = [userSpendingKey];
+
+  if (zkAddress?.startsWith("0zk")) {
+    candidates.push("0x" + zkAddress.slice(3));
+  }
+
+  for (const candidate of candidates) {
+    const recomputed = hash.computePoseidonHashOnElements([
+      note.amount.toString(),
+      note.rho,
+      note.rcm,
+      candidate,
+    ]);
+
+    if (recomputed === note.commitment) {
+      return candidate;
+    }
+  }
+
+  throw new Error("Cannot resolve spending key for note commitment");
 }

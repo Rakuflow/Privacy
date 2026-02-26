@@ -16,4 +16,6 @@ export const env = {
   SHIELDED_POOL: requireEnv('VITE_SHIELDED_POOL'),
   GARAGA_VERIFIER: requireEnv('VITE_GARAGA_VERIFIER'),
   STRK_TOKEN: requireEnv('VITE_STRK_TOKEN'),
+
+  RELAYER_URL: requireEnv('VITE_RELAYER_URL'),
 } as const;

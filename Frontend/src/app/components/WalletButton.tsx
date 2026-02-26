@@ -1,10 +1,10 @@
-import { useAccount, useDisconnect } from "@starknet-react/core";
-import { GlowButton } from "./GlowButton";
-import { Wallet, RefreshCw } from "lucide-react";
-import { WalletConnectModal } from "./WalletConnectModal";
-import { useState } from "react";
-import { toast } from "sonner";
-import { useTokenBalance } from "../../hooks/useTokenBalance";
+import { useAccount, useDisconnect } from '@starknet-react/core';
+import { GlowButton } from './GlowButton';
+import { Wallet, RefreshCw } from 'lucide-react';
+import { WalletConnectModal } from './WalletConnectModal';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { useTokenBalance } from '../../hooks/useTokenBalance';
 
 export function WalletButton() {
   const { address, status } = useAccount();
@@ -15,22 +15,22 @@ export function WalletButton() {
 
   const handleDisconnect = () => {
     disconnect();
-    toast.success("Wallet disconnected");
+    toast.success('Wallet disconnected');
   };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
       await refetch();
-      toast.success("Balance updated!");
+      toast.success('Balance updated!');
     } catch (error) {
-      toast.error("Failed to refresh balance");
+      toast.error('Failed to refresh balance');
     } finally {
       setTimeout(() => setIsRefreshing(false), 500);
     }
   };
 
-  if (status === "connected" && address) {
+  if (status === 'connected' && address) {
     return (
       <div className="flex items-center gap-4">
         {/* <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl">
@@ -55,17 +55,14 @@ export function WalletButton() {
           <span className="text-sm text-gray-400">Connected</span>
           <p className="text-white font-mono">{address.slice(0, 6)}...{address.slice(-4)}</p>
         </div> */}
-        <div
-          className="hidden sm:block px-3 py-2 bg-white/5 border border-white/10 rounded-lg cursor-pointer"
-          onClick={handleDisconnect}
-        >
+        <div className="hidden sm:block px-3 py-2 bg-white/5 border border-white/10 rounded-lg cursor-pointer" onClick={handleDisconnect}>
           <p className="font-mono text-sm text-white">Disconnect</p>
         </div>
       </div>
     );
   }
 
-  if (status === "connecting") {
+  if (status === 'connecting') {
     return <GlowButton disabled>Connecting...</GlowButton>;
   }
 

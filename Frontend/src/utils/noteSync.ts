@@ -3,9 +3,9 @@
  * Syncs local notes with on-chain events to update balance
  */
 
-import { ShieldedNote, getUnspentNotes, updateNoteLeafIndex } from "./noteStorage";
+import { ShieldedNote, getUnspentNotesAsync, updateNoteLeafIndex } from "./noteStorage";
 import { getAllCommitmentsOnChain, getSpentNullifiers } from "../contracts/eventScanner";
-import { computeNullifierHash } from "./zkProofGenerator";
+import { computeNullifierHash, resolveNoteSpendingKey } from "./zkProofGenerator";
 
 export interface SyncResult {
   totalNotes: number;
@@ -20,6 +20,7 @@ export interface SyncResult {
  */
 export async function syncNotesWithChain(
   zkAddress: string,
+  userSpendingKey: string,
   onProgress?: (progress: { current: number; total: number; message: string }) => void
 ): Promise<SyncResult> {
   try {
@@ -38,7 +39,7 @@ export async function syncNotesWithChain(
     onProgress?.({ current: 60, total: 100, message: "Syncing local notes..." });
     
     // Get all unspent notes for this zkAddress
-    const localNotes = getUnspentNotes(zkAddress);
+    const localNotes = await getUnspentNotesAsync(zkAddress);
     
     let syncedCount = 0;
     let unconfirmedCount = 0;
@@ -64,11 +65,12 @@ export async function syncNotesWithChain(
         }
         
         // Check if note is actually spent (via nullifier)
-        const nullifier = computeNullifierHash(
-          note.spendingKey,
-          note.rho,
-          parseInt(leafIndex)
+        const noteSpendingKey = resolveNoteSpendingKey(
+          note,
+          userSpendingKey,
+          zkAddress
         );
+        const nullifier = computeNullifierHash(noteSpendingKey, note.rho, parseInt(leafIndex));
         
         const isSpentOnChain = spentNullifiers.has(nullifier);
         
@@ -107,8 +109,8 @@ export async function syncNotesWithChain(
  * Quick balance check from local notes
  * Faster than full sync, but may not be accurate if chain state changed
  */
-export function getLocalBalance(zkAddress: string): bigint {
-  const notes = getUnspentNotes(zkAddress);
+export async function getLocalBalance(zkAddress: string): Promise<bigint> {
+  const notes = await getUnspentNotesAsync(zkAddress);
   return notes.reduce((sum, note) => sum + note.amount, 0n);
 }
 

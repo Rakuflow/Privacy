@@ -3,11 +3,11 @@ import { useAccount } from '@starknet-react/core';
 import { WalletButton } from './WalletButton';
 import { Shield, ArrowLeft } from 'lucide-react';
 
-interface AppHeaderProps {
+interface HeaderProps {
   showBackButton?: boolean;
 }
 
-export function Header({ showBackButton = true }: AppHeaderProps) {
+export function Header({ showBackButton = true }: HeaderProps) {
   const { address } = useAccount();
 
   return (

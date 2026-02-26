@@ -23,44 +23,38 @@ export interface DepositEventData {
  * We need to capture the leaf_index and store it with the note
  * for future withdrawal proof generation
  */
-export function updateNoteWithLeafIndex(
-  walletAddress: string,
+export async function updateNoteWithLeafIndex(
+  zkAddress: string,
   commitment: string,
   leafIndex: string
-): boolean {
-  const notes = getNotes(walletAddress);
-  
-  // Find note by commitment
-  const noteIndex = notes.findIndex(n => n.commitment === commitment);
-  
-  if (noteIndex === -1) {
-    console.warn("Note not found for commitment:", commitment);
+): Promise<boolean> {
+  try {
+    const notes = await getNotes(zkAddress);
+    
+    // Find note by commitment
+    const note = notes.find(n => n.commitment === commitment);
+    
+    if (!note) {
+      console.warn("Note not found for commitment:", commitment);
+      return false;
+    }
+    
+    // Save updated note with leafIndex
+    await saveNote(zkAddress, {
+      ...note,
+      leafIndex,
+    });
+    
+    console.log("✓ Note updated with leafIndex:", {
+      commitment: commitment.slice(0, 20) + "...",
+      leafIndex,
+    });
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to update note with leafIndex:", error);
     return false;
   }
-  
-  const note = notes[noteIndex];
-  
-  // Update with leafIndex
-  const updatedNote: ShieldedNote = {
-    ...note,
-    leafIndex,
-  };
-  
-  // Update in storage
-  const key = `shieldedNotes_${walletAddress}`;
-  notes[noteIndex] = updatedNote;
-  
-  localStorage.setItem(key, JSON.stringify(notes.map(n => ({
-    ...n,
-    amount: n.amount.toString(),
-  }))));
-  
-  console.log("✓ Note updated with leafIndex:", {
-    commitment: commitment.slice(0, 20) + "...",
-    leafIndex,
-  });
-  
-  return true;
 }
 
 /**

@@ -9,9 +9,13 @@ import { ReactNode } from "react";
 
 const chains = [sepolia];
 
+const RPC_URL =
+  import.meta.env.VITE_RPC_URL ||
+  "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_10/9Lwh6YBXUMo2Y8U1X0KWK";
+
 const provider = jsonRpcProvider({
   rpc: (chain) => ({
-    nodeUrl: `https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_10/9Lwh6YBXUMo2Y8U1X0KWK`,
+    nodeUrl: RPC_URL,
   }),
 });
 

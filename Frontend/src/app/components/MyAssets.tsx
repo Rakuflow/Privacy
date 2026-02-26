@@ -1,95 +1,63 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useZkKeypair } from "../../contexts/ZkKeypairContext";
-import {
-  getShieldedBalance,
-  getUnspentNotes,
-} from "../../utils/noteStorage";
+import { getUnspentNotesAsync } from "../../utils/noteStorage";
 import { TOKENS } from "../../contracts/config";
-import {
-  Wallet,
-  Eye,
-  EyeOff,
-  Shield,
-  TrendingUp,
-} from "lucide-react";
+import { Wallet, Eye, EyeOff, Shield } from "lucide-react";
 
 export function MyAssets() {
   const { keypair } = useZkKeypair();
-  const [shieldedBalance, setShieldedBalance] =
-    useState<bigint>(0n);
+  const [shieldedBalance, setShieldedBalance] = useState<bigint>(0n);
   const [noteCount, setNoteCount] = useState(0);
   const [showBalance, setShowBalance] = useState(true);
+  const loadingRef = useRef(false);
 
-  const refreshBalance = () => {
-    if (keypair?.zkAddress) {
-      const balance = getShieldedBalance(keypair.zkAddress);
-      const notes = getUnspentNotes(keypair.zkAddress);
+  const refreshBalance = async () => {
+    if (!keypair?.zkAddress) {
+      setShieldedBalance(0n);
+      setNoteCount(0);
+      return;
+    }
+
+    if (loadingRef.current) {
+      return;
+    }
+
+    loadingRef.current = true;
+    try {
+      const notes = await getUnspentNotesAsync(keypair.zkAddress);
+      const balance = notes.reduce((sum, note) => sum + note.amount, 0n);
       setShieldedBalance(balance);
       setNoteCount(notes.length);
-
-      // Debug logging
-      console.log("📊 Balance refreshed:", {
-        zkAddress: keypair.zkAddress.slice(0, 15) + "...",
-        totalBalance: balance.toString(),
-        noteCount: notes.length,
-        notes: notes.map((n) => ({
-          amount: n.amount.toString(),
-          spent: n.isSpent,
-          commitment: n.commitment.slice(0, 20) + "...",
-        })),
-      });
+    } catch (error) {
+      console.error("Failed to refresh shielded assets:", error);
+    } finally {
+      loadingRef.current = false;
     }
   };
 
   useEffect(() => {
     refreshBalance();
 
-    // Auto-refresh every 5 seconds to catch withdrawals/transfers
-    const interval = setInterval(refreshBalance, 5000);
+    // Keep light polling and rely mainly on events.
+    const interval = setInterval(refreshBalance, 30000);
 
-    // Listen for storage events (when another tab updates notes)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key?.startsWith("shieldedNotes_")) {
-        refreshBalance();
-      }
-    };
-
-    // Listen for custom balance change events (immediate updates)
     const handleBalanceChange = () => {
-      console.log(
-        "📊 Balance change event received, refreshing...",
-      );
       refreshBalance();
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener(
-      "shieldedBalanceChanged",
-      handleBalanceChange,
-    );
+    window.addEventListener("shieldedBalanceChanged", handleBalanceChange);
 
     return () => {
       clearInterval(interval);
-      window.removeEventListener(
-        "storage",
-        handleStorageChange,
-      );
-      window.removeEventListener(
-        "shieldedBalanceChanged",
-        handleBalanceChange,
-      );
+      window.removeEventListener("shieldedBalanceChanged", handleBalanceChange);
     };
   }, [keypair?.zkAddress]);
 
   const formatBalance = (balance: bigint) => {
-    return (
-      Number(balance) /
-      10 ** TOKENS.STRK.decimals
-    ).toFixed(4);
+    return (Number(balance) / 10 ** TOKENS.STRK.decimals).toFixed(4);
   };
 
-  const usdValue =
-    parseFloat(formatBalance(shieldedBalance)) * 0.046; // Mock price
+  const usdValue = parseFloat(formatBalance(shieldedBalance)) * 0.046; // Mock price
 
   if (!keypair?.zkAddress) {
     return (
@@ -104,11 +72,9 @@ export function MyAssets() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Total Shielded Balance */}
       <div className="p-4 sm:p-6 bg-gradient-to-br from-violet-500/20 via-indigo-500/20 to-purple-500/20 border border-violet-500/30 rounded-xl relative overflow-hidden">
-        {/* Background glow */}
-        <div className="absolute -top-20 -right-20 w-32 h-32 sm:w-40 sm:h-40 bg-violet-500/30 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-20 -left-20 w-32 h-32 sm:w-40 sm:h-40 bg-indigo-500/30 rounded-full blur-3xl"></div>
+        <div className="absolute -top-20 -right-20 w-32 h-32 sm:w-40 sm:h-40 bg-violet-500/30 rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 w-32 h-32 sm:w-40 sm:h-40 bg-indigo-500/30 rounded-full blur-3xl" />
 
         <div className="relative">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -146,47 +112,25 @@ export function MyAssets() {
               </p>
             )}
           </div>
-
-          {/* <div className="flex items-center gap-2 text-sm">
-            <div className="flex items-center gap-1 text-green-400">
-              <TrendingUp className="w-4 h-4" />
-              <span>+2.34%</span>
-            </div>
-            <span className="text-gray-500">Last 24h</span>
-          </div> */}
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Unspent Notes */}
         <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
-          <p className="text-sm text-gray-400 mb-1">
-            Unspent Notes
-          </p>
-          <p className="text-2xl font-bold text-white">
-            {noteCount}
-          </p>
-          <p className="text-xs text-violet-400 mt-1">
-            Active commitments
-          </p>
+          <p className="text-sm text-gray-400 mb-1">Unspent Notes</p>
+          <p className="text-2xl font-bold text-white">{noteCount}</p>
+          <p className="text-xs text-violet-400 mt-1">Active commitments</p>
         </div>
 
-        {/* Privacy Score */}
         <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
-          <p className="text-sm text-gray-400 mb-1">
-            Privacy Score
-          </p>
-          <p className="text-2xl font-bold text-green-400">
-            High
-          </p>
+          <p className="text-sm text-gray-400 mb-1">Privacy Score</p>
+          <p className="text-2xl font-bold text-green-400">High</p>
           <p className="text-xs text-gray-500 mt-1">
             {noteCount > 0 ? "Protected" : "No shielded funds"}
           </p>
         </div>
       </div>
 
-      {/* Asset Breakdown */}
       <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
         <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
           <Wallet className="w-4 h-4 text-violet-400" />
@@ -194,7 +138,6 @@ export function MyAssets() {
         </h4>
 
         <div className="space-y-3">
-          {/* STRK */}
           <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-500 rounded-full flex items-center justify-center text-xs font-bold">
@@ -202,9 +145,7 @@ export function MyAssets() {
               </div>
               <div>
                 <p className="font-medium text-white">STRK</p>
-                <p className="text-xs text-gray-400">
-                  Starknet Token
-                </p>
+                <p className="text-xs text-gray-400">Starknet Token</p>
               </div>
             </div>
             <div className="text-right">
@@ -213,39 +154,28 @@ export function MyAssets() {
                   <p className="font-semibold text-white">
                     {formatBalance(shieldedBalance)}
                   </p>
-                  <p className="text-xs text-gray-400">
-                    ${usdValue.toFixed(2)}
-                  </p>
+                  <p className="text-xs text-gray-400">${usdValue.toFixed(2)}</p>
                 </>
               ) : (
-                <p className="font-semibold text-white">
-                  ••••••
-                </p>
+                <p className="font-semibold text-white">••••••</p>
               )}
             </div>
           </div>
 
-          {/* Future: Add more tokens */}
           {noteCount === 0 && (
             <div className="text-center py-6 text-sm text-gray-500">
               <p>No shielded assets yet</p>
-              <p className="text-xs mt-1">
-                Make a deposit to get started
-              </p>
+              <p className="text-xs mt-1">Make a deposit to get started</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Security Notice */}
       <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
         <p className="text-sm text-amber-300">
-          <strong className="font-semibold">
-            🔐 Security Reminder:
-          </strong>{" "}
-          Your shielded balance is stored locally. Back up your
-          spending key to recover funds if you clear browser
-          data.
+          <strong className="font-semibold">Security Reminder:</strong> Your
+          shielded balance requires local key material. Back up your spending
+          key to recover funds if browser data is lost.
         </p>
       </div>
     </div>

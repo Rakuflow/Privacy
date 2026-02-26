@@ -1,102 +1,69 @@
 /**
- * Transaction History Storage - Store user's transaction history separately from commitments
+ * Transaction History Storage - Store user's transaction history via API
  */
+
+import { historyService, HistoryEntry } from '../services/HistoryService';
 
 export interface TransactionHistory {
-  // Transaction metadata
-  type: 'deposit' | 'received' | 'transfer' | 'withdraw';
+  type: "deposit" | "received" | "transfer" | "withdraw";
   transactionHash: string;
   timestamp: number;
-
-  // Amount info
   amount: bigint;
-
-  // Optional fields
-  recipientZkAddress?: string; // For transfers, show who received
+  recipientZkAddress?: string;
+  recipientPublicAddress?: string;
 }
 
-/**
- * Save a transaction history entry
- */
-export function saveHistory(zkAddress: string, history: TransactionHistory): void {
-  const histories = getHistory(zkAddress);
-  histories.push({
-    ...history,
-    amount: history.amount.toString(), // Convert BigInt to string for storage
-  } as any);
-
-  const key = `history_${zkAddress}`;
-  localStorage.setItem(key, JSON.stringify(histories));
-
-  console.log('✓ History saved:', {
-    zkAddress: zkAddress.slice(0, 15) + '...',
-    type: history.type,
-    amount: (Number(history.amount) / 1e18).toFixed(4) + ' STRK',
-    txHash: history.transactionHash.slice(0, 10) + '...',
-  });
-}
-
-/**
- * Get all transaction history for a zkAddress
- */
-export function getHistory(zkAddress: string): TransactionHistory[] {
-  const key = `history_${zkAddress}`;
-  const stored = localStorage.getItem(key);
-
-  if (!stored) return [];
-
+// Save history entry to backend
+export async function saveHistory(zkAddress: string, history: TransactionHistory): Promise<void> {
   try {
-    const histories = JSON.parse(stored);
-    // Convert amount strings back to BigInt
-    return histories.map((h: any) => ({
+    const response = await historyService.saveHistory({
+      zkAddress,
+      type: history.type,
+      transactionHash: history.transactionHash,
+      timestamp: history.timestamp,
+      amount: history.amount.toString(),
+      recipientZkAddress: history.recipientZkAddress,
+      recipientPublicAddress: history.recipientPublicAddress,
+    });
+
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to save history');
+    }
+
+    console.log("✓ History saved:", {
+      zkAddress: zkAddress.slice(0, 15) + "...",
+      type: history.type,
+      amount: (Number(history.amount) / 1e18).toFixed(4) + " STRK",
+      txHash: history.transactionHash.slice(0, 10) + "...",
+    });
+  } catch (error) {
+    console.error("Failed to save history:", error);
+    throw error;
+  }
+}
+
+// Get transaction history from backend
+export async function getHistory(zkAddress: string): Promise<TransactionHistory[]> {
+  try {
+    const response = await historyService.getHistory(zkAddress);
+
+    if (!response.success || !response.data) {
+      return [];
+    }
+
+    return response.data.history.map((h: any) => ({
       ...h,
       amount: BigInt(h.amount),
     }));
-  } catch {
+  } catch (error) {
+    console.error("Failed to get history:", error);
     return [];
   }
 }
 
-/**
- * Clear all history for a zkAddress
- */
-export function clearHistory(zkAddress: string): void {
-  const key = `history_${zkAddress}`;
-  localStorage.removeItem(key);
-  console.log('✓ History cleared for zkAddress:', zkAddress.slice(0, 15) + '...');
-}
-
-/**
- * Export history to JSON (for backup)
- */
-export function exportHistory(zkAddress: string): string {
-  const histories = getHistory(zkAddress);
-  return JSON.stringify(histories, (key, value) => (typeof value === 'bigint' ? value.toString() : value), 2);
-}
-
-/**
- * Import history from JSON (for restore)
- */
-export function importHistory(zkAddress: string, json: string): void {
-  try {
-    const histories = JSON.parse(json);
-    const key = `history_${zkAddress}`;
-    localStorage.setItem(key, JSON.stringify(histories));
-    console.log('✓ History imported successfully for zkAddress:', zkAddress.slice(0, 15) + '...');
-  } catch (error) {
-    console.error('Failed to import history:', error);
-    throw new Error('Invalid history backup file');
-  }
-}
-
-/**
- * Debug: List all history keys in localStorage
- */
-export function debugListAllHistoryKeys(): string[] {
-  const keys = Object.keys(localStorage).filter((k) => k.startsWith('history_'));
-  console.log(
-    '📦 All history keys:',
-    keys.map((k) => k.slice(0, 30) + '...')
-  );
-  return keys;
+// Export history to JSON (for backup)
+export function exportHistory(history: TransactionHistory[]): string {
+  return JSON.stringify(history, (key, value) =>
+    typeof value === 'bigint' ? value.toString() : value
+  , 2);
 }

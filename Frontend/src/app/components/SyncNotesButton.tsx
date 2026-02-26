@@ -21,7 +21,7 @@ export function SyncNotesButton() {
     try {
       toast.info("🔄 Syncing notes with blockchain...");
       
-      const result = await syncNotesWithChain(keypair.zkAddress, (progress) => {
+      const result = await syncNotesWithChain(keypair.zkAddress, keypair.spendingKey, (progress) => {
         // Optional: show progress toast
         if (progress.current === 0 || progress.current === 100) {
           toast.info(progress.message);

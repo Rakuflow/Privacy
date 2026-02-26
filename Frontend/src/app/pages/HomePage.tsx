@@ -68,7 +68,7 @@ export function HomePage() {
 
       <Header />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12 flex-1">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12 flex-1">
         {status === 'connected' && address ? (
           <div className="space-y-4 sm:space-y-6">
             {/* Setup zk-Keypair Banner - Show if not ready */}
@@ -190,12 +190,18 @@ export function HomePage() {
                   {/* Privacy Controls - Clear Keypair */}
                   {/* {isReady && (
                     <div className="mt-6 sm:mt-8 pt-4 border-t border-white/10">
-                      <h4 className="text-sm font-semibold mb-3 text-gray-400">Privacy</h4>
+                      <h4 className="text-sm font-semibold mb-3 text-gray-400">
+                        Privacy
+                      </h4>
                       <button
                         onClick={() => {
-                          if (confirm('Are you sure you want to clear your stored zk-keypair? You can regenerate it by signing again.')) {
+                          if (
+                            confirm(
+                              "Are you sure you want to clear your stored zk-keypair? You can regenerate it by signing again.",
+                            )
+                          ) {
                             clearKeypair();
-                            toast.success('Zk-keypair cleared from browser');
+                            toast.success("Zk-keypair cleared from browser");
                           }
                         }}
                         className="w-full px-4 py-2 text-sm bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-colors text-red-400"
@@ -221,7 +227,7 @@ export function HomePage() {
         ) : (
           <div className="text-center py-12 sm:py-20">
             <GlassCard className="max-w-md mx-auto p-8 sm:p-12">
-              <Shield className="w-12 h-12 sm:w-16 sm:h-16 text-violet-400 mx-auto mb-4 sm:mb-6" />
+              <img src="/src/assets/Logo.png" alt="RakuShield Logo" className="w-12 h-12 mx-auto mb-4" />
               <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Connect Your Wallet</h2>
               <p className="text-sm sm:text-base text-gray-400 mb-6 sm:mb-8">Connect your Starknet wallet to start using the shielded pool</p>
               <WalletButton />
@@ -234,7 +240,7 @@ export function HomePage() {
       <TransferModal open={transferOpen} onOpenChange={setTransferOpen} zkAddress={zkAddress} />
       <WithdrawModal open={withdrawOpen} onOpenChange={setWithdrawOpen} />
       <ZkKeypairSetup open={zkSetupOpen} onOpenChange={setZkSetupOpen} />
-      {/* <DebugLocalStorage /> */}
+      <DebugLocalStorage />
       <Footer />
     </div>
   );

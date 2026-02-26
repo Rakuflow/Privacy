@@ -1,194 +1,119 @@
 /**
- * Note Storage - Store user's shielded notes locally
+ * Note Storage - Store user's shielded notes via API
  * Each note represents a deposit/transfer that user owns
- * 
- * KEY DESIGN: Uses zkAddress as the primary key (not walletAddress)
- * - Deposit: Save to shieldedNotes_{sender_zkAddress}
- * - Transfer: Save to shieldedNotes_{receiver_zkAddress}
- * - Withdraw: Mark note as spent in shieldedNotes_{sender_zkAddress}
  */
 
+import { noteService } from '../services/NoteService';
+
 export interface ShieldedNote {
-  // Note details
   amount: bigint;
   rho: string;
   rcm: string;
-  spendingKey: string;
+  spendingKey?: string;
   commitment: string;
-  
-  // Metadata
   leafIndex?: string;
-  transactionHash?: string;
-  timestamp?: number;
   isSpent?: boolean;
-  type?: "deposit" | "received" | "withdraw";
+  transactionHash?: string;
 }
 
-/**
- * Format balance for display
- */
 function formatBalance(amount: bigint): string {
   return (Number(amount) / 1e18).toFixed(4);
 }
 
-/**
- * Save a note to localStorage using zkAddress as key
- */
-export function saveNote(zkAddress: string, note: ShieldedNote): void {
-  const notes = getNotes(zkAddress);
-  notes.push({
-    ...note,
-    amount: note.amount.toString(), // Convert BigInt to string for storage
-  } as any);
-  
-  const key = `shieldedNotes_${zkAddress}`;
-  localStorage.setItem(key, JSON.stringify(notes));
-  
-  console.log("✓ Note saved:", {
-    zkAddress: zkAddress.slice(0, 15) + "...",
-    commitment: note.commitment.slice(0, 20) + "...",
-    amount: formatBalance(note.amount) + " STRK",
-    type: note.type,
-  });
+// Save note to backend
+export async function saveNote(zkAddress: string, note: ShieldedNote): Promise<void> {
+  try {
+    const response = await noteService.saveNote({
+      zkAddress,
+      commitment: note.commitment,
+      amount: note.amount.toString(),
+      rho: note.rho,
+      rcm: note.rcm,
+      leafIndex: note.leafIndex,
+      transactionHash: note.transactionHash,
+    });
+
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to save note');
+    }
+
+    console.log("✓ Note saved:", {
+      zkAddress: zkAddress.slice(0, 15) + "...",
+      commitment: note.commitment.slice(0, 20) + "...",
+      amount: formatBalance(note.amount) + " STRK",
+    });
+  } catch (error) {
+    console.error("Failed to save note:", error);
+    throw error;
+  }
 }
 
-/**
- * Get all notes for a zkAddress
- */
-export function getNotes(zkAddress: string): ShieldedNote[] {
-  const key = `shieldedNotes_${zkAddress}`;
-  const stored = localStorage.getItem(key);
-  
-  if (!stored) return [];
-  
+// Get all notes for zkAddress (from backend)
+export async function getNotes(zkAddress: string): Promise<ShieldedNote[]> {
   try {
-    const notes = JSON.parse(stored);
-    // Convert amount strings back to BigInt
-    return notes.map((n: any) => ({
+    const response = await noteService.getUnspentNotes(zkAddress);
+    
+    if (!response.success || !response.data) {
+      return [];
+    }
+
+    return response.data.notes.map((n: any) => ({
       ...n,
       amount: BigInt(n.amount),
-      isSpent: n.isSpent ?? false,
     }));
-  } catch {
+  } catch (error) {
+    console.error("Failed to get notes:", error);
     return [];
   }
 }
 
-/**
- * Get unspent notes (available balance)
- */
+// DEPRECATED: Sync version - kept for backwards compatibility
+// Use getUnspentNotesAsync instead
 export function getUnspentNotes(zkAddress: string): ShieldedNote[] {
-  return getNotes(zkAddress).filter(note => !note.isSpent);
+  console.warn("⚠️ getUnspentNotes is deprecated. Use getUnspentNotesAsync instead");
+  return [];
 }
 
-/**
- * Mark a note as spent
- */
-export function markNoteAsSpent(zkAddress: string, commitment: string): void {
-  const notes = getNotes(zkAddress);
-  const updated = notes.map(note => {
-    if (note.commitment === commitment) {
-      return { ...note, isSpent: true };
-    }
-    return note;
-  });
-  
-  const key = `shieldedNotes_${zkAddress}`;
-  localStorage.setItem(key, JSON.stringify(updated.map(n => ({
-    ...n,
-    amount: n.amount.toString(),
-  }))));
-  
-  console.log("✓ Note marked as spent:", {
-    zkAddress: zkAddress.slice(0, 15) + "...",
-    commitment: commitment.slice(0, 20) + "...",
-  });
+// Async version for hooks/components
+export async function getUnspentNotesAsync(zkAddress: string): Promise<ShieldedNote[]> {
+  const notes = await getNotes(zkAddress);
+  return notes.filter(note => !note.isSpent);
 }
 
-/**
- * Get total shielded balance for a zkAddress
- */
-export function getShieldedBalance(zkAddress: string): bigint {
-  const unspentNotes = getUnspentNotes(zkAddress);
-  return unspentNotes.reduce((sum, note) => sum + note.amount, 0n);
-}
-
-/**
- * Update note's leaf index (after syncing with chain)
- */
-export function updateNoteLeafIndex(zkAddress: string, commitment: string, leafIndex: string): void {
-  const notes = getNotes(zkAddress);
-  const updated = notes.map(note => {
-    if (note.commitment === commitment) {
-      return { ...note, leafIndex };
-    }
-    return note;
-  });
-  
-  const key = `shieldedNotes_${zkAddress}`;
-  localStorage.setItem(key, JSON.stringify(updated.map(n => ({
-    ...n,
-    amount: n.amount.toString(),
-  }))));
-}
-
-/**
- * Clear all notes for a zkAddress
- */
-export function clearNotes(zkAddress: string): void {
-  const key = `shieldedNotes_${zkAddress}`;
-  localStorage.removeItem(key);
-  console.log("✓ Notes cleared for zkAddress:", zkAddress.slice(0, 15) + "...");
-}
-
-/**
- * Export notes to JSON (for backup)
- */
-export function exportNotes(zkAddress: string): string {
-  const notes = getNotes(zkAddress);
-  return JSON.stringify(notes, (key, value) =>
-    typeof value === 'bigint' ? value.toString() : value
-  , 2);
-}
-
-/**
- * Import notes from JSON (for restore)
- */
-export function importNotes(zkAddress: string, json: string): void {
+// Mark note as spent
+export async function markNoteAsSpent(zkAddress: string, commitment: string): Promise<void> {
   try {
-    const notes = JSON.parse(json);
-    const key = `shieldedNotes_${zkAddress}`;
-    localStorage.setItem(key, JSON.stringify(notes));
-    console.log("✓ Notes imported successfully for zkAddress:", zkAddress.slice(0, 15) + "...");
+    const response = await noteService.markNoteAsSpent(zkAddress, commitment);
+
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to mark note as spent');
+    }
+
+    console.log("✓ Note marked as spent:", {
+      zkAddress: zkAddress.slice(0, 15) + "...",
+      commitment: commitment.slice(0, 20) + "...",
+    });
   } catch (error) {
-    console.error("Failed to import notes:", error);
-    throw new Error("Invalid notes backup file");
+    console.error("Failed to mark note as spent:", error);
+    throw error;
   }
 }
 
-/**
- * Debug: List all shielded notes keys in localStorage
- */
-export function debugListAllNotesKeys(): string[] {
-  const keys = Object.keys(localStorage).filter(k => k.startsWith('shieldedNotes_'));
-  console.log("📦 All shielded notes keys:", keys.map(k => k.slice(0, 30) + "..."));
-  return keys;
+// Update note's leaf index (not used with API, but kept for compatibility)
+export function updateNoteLeafIndex(zkAddress: string, commitment: string, leafIndex: string): void {
+  console.warn("⚠️ updateNoteLeafIndex is deprecated with API backend");
+  // Notes are managed by backend, leaf index updates handled there
 }
 
-/**
- * Debug: Get notes count for a zkAddress
- */
-export function debugGetNotesInfo(zkAddress: string): { total: number; unspent: number; balance: string } {
-  const allNotes = getNotes(zkAddress);
-  const unspentNotes = getUnspentNotes(zkAddress);
-  const balance = getShieldedBalance(zkAddress);
-  
-  const info = {
-    total: allNotes.length,
-    unspent: unspentNotes.length,
-    balance: formatBalance(balance) + " STRK",
-  };
-  
-  console.log(`📊 Notes info for ${zkAddress.slice(0, 15)}...`, info);
-  return info;
+// Get total shielded balance
+export async function getShieldedBalance(zkAddress: string): Promise<bigint> {
+  const unspentNotes = await getUnspentNotesAsync(zkAddress);
+  return unspentNotes.reduce((sum, note) => sum + note.amount, 0n);
+}
+
+// Export/import functions (keep for backup)
+export function exportNotes(notes: ShieldedNote[]): string {
+  return JSON.stringify(notes, (key, value) =>
+    typeof value === 'bigint' ? value.toString() : value
+  , 2);
 }

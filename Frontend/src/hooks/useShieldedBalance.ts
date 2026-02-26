@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
-import { useAccount } from "@starknet-react/core";
-import { getShieldedBalance, getUnspentNotes } from "../utils/noteStorage";
+import { getUnspentNotesAsync } from "../utils/noteStorage";
+import { useZkKeypair } from "../contexts/ZkKeypairContext";
 
 /**
  * Hook to get shielded balance and auto-refresh
  */
 export function useShieldedBalance() {
-  const { address } = useAccount();
+  const { keypair } = useZkKeypair();
   const [balance, setBalance] = useState<bigint>(0n);
   const [noteCount, setNoteCount] = useState(0);
 
-  const refresh = () => {
-    if (address) {
-      const bal = getShieldedBalance(address);
-      const notes = getUnspentNotes(address);
+  const refresh = async () => {
+    if (keypair?.zkAddress) {
+      const notes = await getUnspentNotesAsync(keypair.zkAddress);
+      const bal = notes.reduce((sum, note) => sum + note.amount, 0n);
       setBalance(bal);
       setNoteCount(notes.length);
     } else {
@@ -25,23 +25,21 @@ export function useShieldedBalance() {
   useEffect(() => {
     refresh();
 
-    // Auto-refresh every 10 seconds to catch new deposits
-    const interval = setInterval(refresh, 10000);
+    // Keep light polling to avoid API spam
+    const interval = setInterval(refresh, 30000);
 
-    // Listen for storage changes (from other tabs)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key?.startsWith("shieldedNotes_")) {
-        refresh();
-      }
+    // Listen for custom event (when balance changes)
+    const handleBalanceChange = () => {
+      refresh();
     };
 
-    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("shieldedBalanceChanged", handleBalanceChange);
 
     return () => {
       clearInterval(interval);
-      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("shieldedBalanceChanged", handleBalanceChange);
     };
-  }, [address]);
+  }, [keypair?.zkAddress]);
 
   return { balance, noteCount, refresh };
 }
