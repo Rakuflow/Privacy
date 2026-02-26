@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { useZkKeypair } from "../../contexts/ZkKeypairContext";
-import { getUnspentNotesAsync } from "../../utils/noteStorage";
-import { TOKENS } from "../../contracts/config";
-import { Wallet, Eye, EyeOff, Shield } from "lucide-react";
+import { useEffect, useRef, useState } from 'react';
+import { useZkKeypair } from '../../contexts/ZkKeypairContext';
+import { TOKENS } from '../../contracts/config';
+import { Wallet, Eye, EyeOff, Shield } from 'lucide-react';
 
 export function MyAssets() {
   const { keypair } = useZkKeypair();
@@ -23,16 +22,6 @@ export function MyAssets() {
     }
 
     loadingRef.current = true;
-    try {
-      const notes = await getUnspentNotesAsync(keypair.zkAddress);
-      const balance = notes.reduce((sum, note) => sum + note.amount, 0n);
-      setShieldedBalance(balance);
-      setNoteCount(notes.length);
-    } catch (error) {
-      console.error("Failed to refresh shielded assets:", error);
-    } finally {
-      loadingRef.current = false;
-    }
   };
 
   useEffect(() => {
@@ -45,11 +34,11 @@ export function MyAssets() {
       refreshBalance();
     };
 
-    window.addEventListener("shieldedBalanceChanged", handleBalanceChange);
+    window.addEventListener('shieldedBalanceChanged', handleBalanceChange);
 
     return () => {
       clearInterval(interval);
-      window.removeEventListener("shieldedBalanceChanged", handleBalanceChange);
+      window.removeEventListener('shieldedBalanceChanged', handleBalanceChange);
     };
   }, [keypair?.zkAddress]);
 
@@ -63,9 +52,7 @@ export function MyAssets() {
     return (
       <div className="p-6 sm:p-8 text-center">
         <Wallet className="w-10 h-10 sm:w-12 sm:h-12 text-gray-600 mx-auto mb-2 sm:mb-3" />
-        <p className="text-sm sm:text-base text-gray-400">
-          Connect wallet to view your assets
-        </p>
+        <p className="text-sm sm:text-base text-gray-400">Connect wallet to view your assets</p>
       </div>
     );
   }
@@ -80,36 +67,21 @@ export function MyAssets() {
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400" />
-              <h3 className="text-xs sm:text-sm font-medium text-gray-300">
-                Total Shielded Balance
-              </h3>
+              <h3 className="text-xs sm:text-sm font-medium text-gray-300">Total Shielded Balance</h3>
             </div>
-            <button
-              onClick={() => setShowBalance(!showBalance)}
-              className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-colors"
-            >
-              {showBalance ? (
-                <Eye className="w-4 h-4 text-gray-400" />
-              ) : (
-                <EyeOff className="w-4 h-4 text-gray-400" />
-              )}
+            <button onClick={() => setShowBalance(!showBalance)} className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-colors">
+              {showBalance ? <Eye className="w-4 h-4 text-gray-400" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
             </button>
           </div>
 
           <div className="mb-2">
             {showBalance ? (
               <>
-                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">
-                  {formatBalance(shieldedBalance)} STRK
-                </p>
-                <p className="text-base sm:text-lg text-gray-400">
-                  ≈ ${usdValue.toFixed(2)} USD
-                </p>
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">{formatBalance(shieldedBalance)} STRK</p>
+                <p className="text-base sm:text-lg text-gray-400">≈ ${usdValue.toFixed(2)} USD</p>
               </>
             ) : (
-              <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">
-                ••••••
-              </p>
+              <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">••••••</p>
             )}
           </div>
         </div>
@@ -125,9 +97,7 @@ export function MyAssets() {
         <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
           <p className="text-sm text-gray-400 mb-1">Privacy Score</p>
           <p className="text-2xl font-bold text-green-400">High</p>
-          <p className="text-xs text-gray-500 mt-1">
-            {noteCount > 0 ? "Protected" : "No shielded funds"}
-          </p>
+          <p className="text-xs text-gray-500 mt-1">{noteCount > 0 ? 'Protected' : 'No shielded funds'}</p>
         </div>
       </div>
 
@@ -140,9 +110,7 @@ export function MyAssets() {
         <div className="space-y-3">
           <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-500 rounded-full flex items-center justify-center text-xs font-bold">
-                S
-              </div>
+              <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-500 rounded-full flex items-center justify-center text-xs font-bold">S</div>
               <div>
                 <p className="font-medium text-white">STRK</p>
                 <p className="text-xs text-gray-400">Starknet Token</p>
@@ -151,9 +119,7 @@ export function MyAssets() {
             <div className="text-right">
               {showBalance ? (
                 <>
-                  <p className="font-semibold text-white">
-                    {formatBalance(shieldedBalance)}
-                  </p>
+                  <p className="font-semibold text-white">{formatBalance(shieldedBalance)}</p>
                   <p className="text-xs text-gray-400">${usdValue.toFixed(2)}</p>
                 </>
               ) : (
@@ -173,9 +139,7 @@ export function MyAssets() {
 
       <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
         <p className="text-sm text-amber-300">
-          <strong className="font-semibold">Security Reminder:</strong> Your
-          shielded balance requires local key material. Back up your spending
-          key to recover funds if browser data is lost.
+          <strong className="font-semibold">Security Reminder:</strong> Your shielded balance requires local key material. Back up your spending key to recover funds if browser data is lost.
         </p>
       </div>
     </div>

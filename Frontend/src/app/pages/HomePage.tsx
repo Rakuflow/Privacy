@@ -19,7 +19,6 @@ import { WithdrawModal } from '../components/WithdrawModal';
 import { MyAssets } from '../components/MyAssets';
 import { TransactionHistory } from '../components/TransactionHistory';
 import { ZkKeypairSetup } from '../components/ZkKeypairSetup';
-import { SyncNotesButton } from '../components/SyncNotesButton';
 import { DebugLocalStorage } from '../components/DebugLocalStorage';
 
 export function HomePage() {
@@ -157,7 +156,6 @@ export function HomePage() {
                         <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400" />
                         My Assets
                       </span>
-                      <SyncNotesButton />
                     </h3>
                     <MyAssets />
                   </div>

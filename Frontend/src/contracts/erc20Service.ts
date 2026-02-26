@@ -1,4 +1,4 @@
-import { RpcProvider, CallData, cairo, num } from "starknet";
+import { RpcProvider, CallData, cairo, num } from 'starknet';
 
 export class ERC20Service {
   private provider: RpcProvider;
@@ -11,31 +11,24 @@ export class ERC20Service {
 
   async getBalance(accountAddress: string): Promise<bigint> {
     try {
-      console.log("Fetching balance for:", accountAddress);
-      console.log("Token address:", this.tokenAddress);
-      
       // Direct RPC call instead of using Contract class
       const result = await this.provider.callContract({
         contractAddress: this.tokenAddress,
-        entrypoint: "balance_of",
+        entrypoint: 'balance_of',
         calldata: CallData.compile([accountAddress]),
       });
-
-      console.log("Balance result:", result);
 
       // Parse u256 result (low, high)
       if (result && result.length >= 2) {
         const low = BigInt(result[0]);
         const high = BigInt(result[1]);
         const balance = low + (high << 128n);
-        console.log("Parsed balance:", balance.toString());
         return balance;
       }
-      
-      console.log("No balance found, returning 0");
+
       return 0n;
     } catch (error) {
-      console.error("Failed to get balance:", error);
+      console.error('Failed to get balance:', error);
       return 0n;
     }
   }
@@ -44,17 +37,17 @@ export class ERC20Service {
     try {
       const result = await this.provider.callContract({
         contractAddress: this.tokenAddress,
-        entrypoint: "name",
+        entrypoint: 'name',
         calldata: [],
       });
-      
+
       if (result && result[0]) {
         return cairo.felt252ToString(result[0]);
       }
-      return "";
+      return '';
     } catch (error) {
-      console.error("Failed to get name:", error);
-      return "";
+      console.error('Failed to get name:', error);
+      return '';
     }
   }
 
@@ -62,17 +55,17 @@ export class ERC20Service {
     try {
       const result = await this.provider.callContract({
         contractAddress: this.tokenAddress,
-        entrypoint: "symbol",
+        entrypoint: 'symbol',
         calldata: [],
       });
-      
+
       if (result && result[0]) {
         return cairo.felt252ToString(result[0]);
       }
-      return "";
+      return '';
     } catch (error) {
-      console.error("Failed to get symbol:", error);
-      return "";
+      console.error('Failed to get symbol:', error);
+      return '';
     }
   }
 
@@ -80,16 +73,16 @@ export class ERC20Service {
     try {
       const result = await this.provider.callContract({
         contractAddress: this.tokenAddress,
-        entrypoint: "decimals",
+        entrypoint: 'decimals',
         calldata: [],
       });
-      
+
       if (result && result[0]) {
         return Number(result[0]);
       }
       return 18;
     } catch (error) {
-      console.error("Failed to get decimals:", error);
+      console.error('Failed to get decimals:', error);
       return 18;
     }
   }
@@ -98,7 +91,7 @@ export class ERC20Service {
     try {
       // For approve, we need to use the account to sign
       if (!account) {
-        throw new Error("Account required for approval");
+        throw new Error('Account required for approval');
       }
 
       // Split u256 into low and high
@@ -107,16 +100,16 @@ export class ERC20Service {
 
       const tx = await account.execute({
         contractAddress: this.tokenAddress,
-        entrypoint: "approve",
+        entrypoint: 'approve',
         calldata: CallData.compile({
           spender,
           amount: { low: amountLow, high: amountHigh },
         }),
       });
-      
+
       return tx;
     } catch (error) {
-      console.error("Failed to approve:", error);
+      console.error('Failed to approve:', error);
       throw error;
     }
   }

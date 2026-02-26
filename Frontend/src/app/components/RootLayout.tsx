@@ -1,17 +1,15 @@
-import { Outlet } from "react-router";
-import { StarknetProvider } from "../../lib/starknet";
-import { ZkKeypairProvider } from "../../contexts/ZkKeypairContext";
-import { ZkKeypairProviderTest } from "./ZkKeypairProviderTest";
-import { Toaster } from "sonner";
+import { Outlet } from 'react-router';
+import { StarknetProvider } from '../../lib/starknet';
+import { ZkKeypairProvider } from '../../contexts/ZkKeypairContext';
+import { Toaster } from 'sonner';
 
 export function RootLayout() {
   return (
     <StarknetProvider>
       <ZkKeypairProvider>
-        <ZkKeypairProviderTest />
         <div className="dark">
           <Outlet />
-          <Toaster 
+          <Toaster
             position="top-right"
             theme="dark"
             toastOptions={{
