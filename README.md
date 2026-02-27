@@ -3,19 +3,12 @@
 Private value transfer infrastructure on Starknet, built around a shielded pool + zero-knowledge proofs.
 
 <p align="center">
-  <img src="Frontend/src/assets/Logo.png" width="100" style="vertical-align: middle; margin-right:10px;" />
-  <svg width="" height="50" viewBox="0 0 260 90">
-    <defs>
-      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style="stop-color:#22c1c3"/>
-        <stop offset="100%" style="stop-color:#7b2ff7"/>
-      </linearGradient>
-    </defs>
-    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-      font-size="50" font-weight="bold" fill="url(#grad)" font-family="Segoe UI, sans-serif">
-      RakuShield
-    </text>
-  </svg>
+  <img src="Frontend/src/assets/RakuShield.png" width="320" alt="RakuShield logo" />
+</p>
+
+<p align="center">
+  <strong>RakuShield</strong><br/>
+  Privacy-First Transfers on Starknet
 </p>
 
 
