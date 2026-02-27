@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router';
-import { StarknetProvider } from '../../lib/starknet';
-import { ZkKeypairProvider } from '../../contexts/ZkKeypairContext';
+import { StarknetProvider } from '../lib/starknet';
+import { ZkKeypairProvider } from '../contexts/ZkKeypairContext';
 import { Toaster } from 'sonner';
 
 export function RootLayout() {

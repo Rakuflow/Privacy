@@ -73,6 +73,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
     "@types/node": "^25.3.0",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
     "vite": "6.3.5"

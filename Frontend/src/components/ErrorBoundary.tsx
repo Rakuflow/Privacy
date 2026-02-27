@@ -56,34 +56,26 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
 
               {/* Title */}
-              <h1 className="text-2xl font-bold text-white mb-3">
-                Oops! Something went wrong
-              </h1>
+              <h1 className="text-2xl font-bold text-white mb-3">Oops! Something went wrong</h1>
 
               {/* Description */}
-              <p className="text-gray-400 mb-6">
-                The application encountered an unexpected error. 
-                Please try refreshing the page.
-              </p>
+              <p className="text-gray-400 mb-6">The application encountered an unexpected error. Please try refreshing the page.</p>
 
               {/* Error Details (dev only) */}
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+              {/* {process.env.NODE_ENV === 'development' && this.state.error && (
                 <div className="mb-6 p-4 bg-black/50 border border-red-500/20 rounded-lg text-left">
                   <p className="text-xs font-mono text-red-300 break-all">
                     {this.state.error.message}
                   </p>
                 </div>
-              )}
+              )} */}
 
               {/* Actions */}
               <div className="flex flex-col gap-3">
                 <GlowButton onClick={this.handleReset} className="w-full">
                   Try Again
                 </GlowButton>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-colors"
-                >
+                <button onClick={() => window.location.reload()} className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-colors">
                   Reload Page
                 </button>
               </div>

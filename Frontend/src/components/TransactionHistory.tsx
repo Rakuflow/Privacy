@@ -1,20 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { useZkKeypair } from "../../contexts/ZkKeypairContext";
-import {
-  getHistory,
-} from "../../utils/historyStorage";
-import type { TransactionHistory as TxHistory } from "../../types/History.type";
-import { TOKENS } from "../../contracts/config";
-import {
-  History,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  ArrowRightLeft,
-  ExternalLink,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { useEffect, useRef, useState } from 'react';
+import { useZkKeypair } from '../contexts/ZkKeypairContext';
+import { getHistory } from '../utils/historyStorage';
+import type { TransactionHistory as TxHistory } from '../types/History.type';
+import { TOKENS } from '../contracts/config';
+import { History, ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -53,11 +43,11 @@ export function TransactionHistory() {
       refreshHistory();
     };
 
-    window.addEventListener("shieldedBalanceChanged", handleBalanceChange);
+    window.addEventListener('shieldedBalanceChanged', handleBalanceChange);
 
     return () => {
       clearInterval(interval);
-      window.removeEventListener("shieldedBalanceChanged", handleBalanceChange);
+      window.removeEventListener('shieldedBalanceChanged', handleBalanceChange);
     };
   }, [keypair?.zkAddress]);
 
@@ -82,9 +72,7 @@ export function TransactionHistory() {
     return (
       <div className="p-6 sm:p-8 text-center">
         <History className="w-10 h-10 sm:w-12 sm:h-12 text-gray-600 mx-auto mb-2 sm:mb-3" />
-        <p className="text-sm sm:text-base text-gray-400">
-          Connect wallet to view transaction history
-        </p>
+        <p className="text-sm sm:text-base text-gray-400">Connect wallet to view transaction history</p>
       </div>
     );
   }
@@ -93,12 +81,8 @@ export function TransactionHistory() {
     return (
       <div className="p-6 sm:p-8 text-center">
         <History className="w-10 h-10 sm:w-12 sm:h-12 text-gray-600 mx-auto mb-2 sm:mb-3" />
-        <p className="text-sm sm:text-base text-gray-400">
-          No shielded transactions yet
-        </p>
-        <p className="text-xs sm:text-sm text-gray-500 mt-2">
-          Make a deposit to get started
-        </p>
+        <p className="text-sm sm:text-base text-gray-400">No shielded transactions yet</p>
+        <p className="text-xs sm:text-sm text-gray-500 mt-2">Make a deposit to get started</p>
       </div>
     );
   }
@@ -107,28 +91,25 @@ export function TransactionHistory() {
     <div className="space-y-3 sm:space-y-4">
       <div className="space-y-2 sm:space-y-3">
         {currentHistories.map((history, index) => (
-          <div
-            key={`${history.transactionHash}-${index}`}
-            className="p-3 sm:p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all group"
-          >
+          <div key={`${history.transactionHash}-${index}`} className="p-3 sm:p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all group">
             <div className="flex items-start justify-between gap-3 sm:gap-4">
               <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
                 <div
                   className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    history.type === "deposit"
-                      ? "bg-green-500/20 text-green-400"
-                      : history.type === "received"
-                        ? "bg-blue-500/20 text-blue-400"
-                        : history.type === "transfer"
-                          ? "bg-violet-500/20 text-violet-400"
-                          : "bg-amber-500/20 text-amber-400"
+                    history.type === 'deposit'
+                      ? 'bg-green-500/20 text-green-400'
+                      : history.type === 'received'
+                        ? 'bg-blue-500/20 text-blue-400'
+                        : history.type === 'transfer'
+                          ? 'bg-violet-500/20 text-violet-400'
+                          : 'bg-amber-500/20 text-amber-400'
                   }`}
                 >
-                  {history.type === "deposit" ? (
+                  {history.type === 'deposit' ? (
                     <ArrowDownToLine className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : history.type === "received" ? (
+                  ) : history.type === 'received' ? (
                     <ArrowRightLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : history.type === "transfer" ? (
+                  ) : history.type === 'transfer' ? (
                     <ArrowRightLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
                     <ArrowUpFromLine className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -137,29 +118,21 @@ export function TransactionHistory() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="font-semibold text-white capitalize">
-                      {history.type === "received"
-                        ? "Received Transfer"
-                        : history.type}
-                    </p>
+                    <p className="font-semibold text-white capitalize">{history.type === 'received' ? 'Received Transfer' : history.type}</p>
                   </div>
 
                   <p className="text-sm text-gray-400 mb-2">
-                    {history.timestamp &&
-                    !isNaN(history.timestamp) &&
-                    history.timestamp > 0
+                    {history.timestamp && !isNaN(history.timestamp) && history.timestamp > 0
                       ? formatDistanceToNow(new Date(history.timestamp), {
                           addSuffix: true,
                         })
-                      : "Recently"}
+                      : 'Recently'}
                   </p>
 
                   {history.recipientZkAddress && (
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500">To:</span>
-                      <code className="text-xs text-blue-400 font-mono truncate max-w-[150px]">
-                        {history.recipientZkAddress.slice(0, 15)}...
-                      </code>
+                      <code className="text-xs text-blue-400 font-mono truncate max-w-[150px]">{history.recipientZkAddress.slice(0, 15)}...</code>
                     </div>
                   )}
                 </div>
@@ -167,32 +140,19 @@ export function TransactionHistory() {
 
               <div className="text-right flex flex-col items-end gap-2">
                 <div>
-                  <p
-                    className={`text-lg font-semibold ${
-                      history.type === "deposit" || history.type === "received"
-                        ? "text-green-400"
-                        : "text-red-400"
-                    }`}
-                  >
-                    {history.type === "deposit" || history.type === "received"
-                      ? "+"
-                      : "-"}
+                  <p className={`text-lg font-semibold ${history.type === 'deposit' || history.type === 'received' ? 'text-green-400' : 'text-red-400'}`}>
+                    {history.type === 'deposit' || history.type === 'received' ? '+' : '-'}
                     {formatAmount(history.amount)} STRK
                   </p>
-                  <p className="text-xs text-gray-500">
-                    ${(parseFloat(formatAmount(history.amount)) * 1.5).toFixed(2)}{" "}
-                    USD
-                  </p>
+                  <p className="text-xs text-gray-500">${(parseFloat(formatAmount(history.amount)) * 1.5).toFixed(2)} USD</p>
                 </div>
 
                 <a
-                  href={getExplorerUrl(history.transactionHash || "")}
+                  href={getExplorerUrl(history.transactionHash || '')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-opacity ${
-                    history.transactionHash
-                      ? "opacity-0 group-hover:opacity-100"
-                      : "opacity-0 pointer-events-none"
+                    history.transactionHash ? 'opacity-0 group-hover:opacity-100' : 'opacity-0 pointer-events-none'
                   }`}
                 >
                   View on Explorer
@@ -207,8 +167,7 @@ export function TransactionHistory() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-2 border-t border-white/10">
           <p className="text-xs text-gray-500">
-            Showing {startIndex + 1}-{Math.min(endIndex, histories.length)} of{" "}
-            {histories.length}
+            Showing {startIndex + 1}-{Math.min(endIndex, histories.length)} of {histories.length}
           </p>
 
           <div className="flex items-center gap-2">

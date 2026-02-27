@@ -4,11 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { GlowButton } from './GlowButton';
 import { toast } from 'sonner';
 import { Key, Copy, Check, AlertTriangle, Shield, Loader2 } from 'lucide-react';
-import { getTypedDataForSigning, deriveZkKeypair } from '../../utils/zkKeypair';
-import { useZkKeypair } from '../../contexts/ZkKeypairContext';
-import { copyToClipboard as copyText } from '../../utils/clipboard';
+import { getTypedDataForSigning, deriveZkKeypair } from '../utils/zkKeypair';
+import { useZkKeypair } from '../contexts/ZkKeypairContext';
+import { copyToClipboard as copyText } from '../utils/clipboard';
 import { constants } from 'starknet';
-import { safeWalletOperation, parseError, ErrorType } from '../../utils/errorHandling';
+import { safeWalletOperation, parseError, ErrorType } from '../utils/errorHandling';
 
 interface ZkKeypairSetupProps {
   open: boolean;

@@ -1,6 +1,6 @@
-import { Check, Loader2, X } from "lucide-react";
-import { cn } from "./ui/utils";
-import type { Step } from "../../types/TransactionStatus.type";
+import { Check, Loader2, X } from 'lucide-react';
+import { cn } from './ui/utils';
+import type { Step } from '../types/TransactionStatus.type';
 
 interface TransactionStatusStepperProps {
   steps: Step[];
@@ -9,14 +9,14 @@ interface TransactionStatusStepperProps {
 
 export function TransactionStatusStepper({ steps, className }: TransactionStatusStepperProps) {
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn('w-full', className)}>
       {/* Steps Container */}
       <div className="flex items-center justify-between relative">
         {steps.map((step, index) => {
-          const isCompleted = step.status === "completed";
-          const isActive = step.status === "active";
-          const isError = step.status === "error";
-          const isPending = step.status === "pending";
+          const isCompleted = step.status === 'completed';
+          const isActive = step.status === 'active';
+          const isError = step.status === 'error';
+          const isPending = step.status === 'pending';
 
           return (
             <div key={index} className="flex flex-col items-center flex-1 relative">
@@ -47,11 +47,11 @@ export function TransactionStatusStepper({ steps, className }: TransactionStatus
               {/* Label */}
               <p
                 className={cn(
-                  "text-xs font-medium mt-2 text-center transition-colors",
-                  isCompleted && "text-green-400",
-                  isActive && "text-green-400",
-                  isError && "text-red-400",
-                  isPending && "text-gray-500"
+                  'text-xs font-medium mt-2 text-center transition-colors',
+                  isCompleted && 'text-green-400',
+                  isActive && 'text-green-400',
+                  isError && 'text-red-400',
+                  isPending && 'text-gray-500'
                 )}
               >
                 {step.label}
@@ -60,12 +60,9 @@ export function TransactionStatusStepper({ steps, className }: TransactionStatus
               {/* Connecting Line */}
               {index < steps.length - 1 && (
                 <div
-                  className={cn(
-                    "absolute top-5 left-1/2 w-full h-1 -z-10 transition-all duration-300",
-                    (isCompleted || isError) ? "bg-green-500" : "bg-gray-700"
-                  )}
-                  style={{ 
-                    transform: "translateY(-50%)",
+                  className={cn('absolute top-5 left-1/2 w-full h-1 -z-10 transition-all duration-300', isCompleted || isError ? 'bg-green-500' : 'bg-gray-700')}
+                  style={{
+                    transform: 'translateY(-50%)',
                   }}
                 />
               )}

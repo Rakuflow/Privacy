@@ -3,8 +3,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { toast } from 'sonner';
 import { Wallet } from 'lucide-react';
 import { useState } from 'react';
-import { safeWalletOperation, parseError, ErrorType } from '../../utils/errorHandling';
-import { WALLET_URLS } from '../../config/urls';
+import { safeWalletOperation, parseError, ErrorType } from '../utils/errorHandling';
+import { WALLET_URLS } from '../config/urls';
 
 interface WalletConnectModalProps {
   open: boolean;

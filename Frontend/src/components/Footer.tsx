@@ -1,6 +1,6 @@
 import { Shield, Github, Twitter, BookOpen, FileText } from 'lucide-react';
 import { Link } from 'react-router';
-import { WALLET_URLS, EXPLORER_URLS, OTHER_URLS } from '../../config/urls';
+import { WALLET_URLS, EXPLORER_URLS, OTHER_URLS } from '../config/urls';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();

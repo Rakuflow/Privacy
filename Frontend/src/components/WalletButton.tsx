@@ -4,7 +4,7 @@ import { Wallet, RefreshCw } from 'lucide-react';
 import { WalletConnectModal } from './WalletConnectModal';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { useTokenBalance } from '../../hooks/useTokenBalance';
+import { useTokenBalance } from '../hooks/useTokenBalance';
 
 export function WalletButton() {
   const { address, status } = useAccount();

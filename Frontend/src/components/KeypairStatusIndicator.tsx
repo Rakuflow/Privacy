@@ -1,8 +1,8 @@
-import { useZkKeypair } from "../../contexts/ZkKeypairContext";
-import { useAccount } from "@starknet-react/core";
-import { Shield, Check, AlertCircle } from "lucide-react";
-import { hasZkKeypair } from "../../utils/zkStorage";
-import { useEffect, useState } from "react";
+import { useZkKeypair } from '../contexts/ZkKeypairContext';
+import { useAccount } from '@starknet-react/core';
+import { Shield, Check, AlertCircle } from 'lucide-react';
+import { hasZkKeypair } from '../utils/zkStorage';
+import { useEffect, useState } from 'react';
 
 /**
  * Status indicator showing keypair state
@@ -33,7 +33,7 @@ export function KeypairStatusIndicator() {
           <Check className="w-4 h-4 text-green-400" />
           <div className="text-xs">
             <p className="text-green-300 font-semibold">zk-Keypair Active</p>
-            <p className="text-green-400/70">{isStored ? "Stored" : "Memory only"}</p>
+            <p className="text-green-400/70">{isStored ? 'Stored' : 'Memory only'}</p>
           </div>
         </div>
       ) : (

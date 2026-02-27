@@ -4,8 +4,8 @@ import { Input } from './ui/input';
 import { GlowButton } from './GlowButton';
 import { TransactionStatusStepper } from './TransactionStatusStepper';
 import { Loader2, Send, AlertCircle } from 'lucide-react';
-import { TOKENS } from '../../contracts/config';
-import { useTransfer } from '../../hooks/useTransfer';
+import { TOKENS } from '../contracts/config';
+import { useTransfer } from '../hooks/useTransfer';
 import { RelayerInfo } from './RelayerInfo';
 
 interface TransferModalProps {

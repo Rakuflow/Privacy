@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useZkKeypair } from '../../contexts/ZkKeypairContext';
-import { getUnspentNotesAsync } from '../../utils/noteStorage';
-import { TOKENS } from '../../contracts/config';
+import { useZkKeypair } from '../contexts/ZkKeypairContext';
+import { getUnspentNotesAsync } from '../utils/noteStorage';
+import { TOKENS } from '../contracts/config';
 import { Wallet, Eye, EyeOff, Shield } from 'lucide-react';
 
 export function MyAssets() {
