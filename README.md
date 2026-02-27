@@ -24,9 +24,9 @@ Current release: `0.1.0` (February 27, 2026)
 ## 1) Why this project exists
 
 Public blockchains are transparent by default. For normal users, DAOs, and teams, that means:
-- wallet-to-wallet transfer history is easy to trace
-- balance and treasury movement are publicly linkable
-- operational privacy is weak for sensitive payments
+- wallet-to-wallet transfer history is easy to trace.
+- balance and treasury movement are publicly linkable.
+- operational privacy is weak for sensitive payments.
 
 RakuFlow solves this by separating **public wallet identity** from **shielded transfer identity**, while still using Starknet security guarantees.
 

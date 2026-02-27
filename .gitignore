@@ -110,7 +110,7 @@ downloads/
 # -------------------------------
 # Keep these (do NOT ignore)
 # !.gitignore
-!README.md
+README.md
 !turbo.json
 !pnpm-workspace.yaml          
 !.env.example
