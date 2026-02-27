@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy package.json & lockfile
 COPY package*.json ./
 
-# Cài dependencies 
+# install dependencies 
 RUN npm ci
 
 COPY . .
@@ -14,5 +14,5 @@ COPY . .
 # Expose port Vite
 EXPOSE 5001
 
-# Dùng npm run preview cho production
+# use npm run preview for production
 CMD ["sh", "-c", "if [ \"$NODE_ENV\" = 'production' ]; then npm run preview -- --host 0.0.0.0; else npm run dev -- --host 0.0.0.0; fi"]
