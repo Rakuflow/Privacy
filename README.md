@@ -2,7 +2,22 @@
 
 Private value transfer infrastructure on Starknet, built around a shielded pool + zero-knowledge proofs.
 
-![RakuShield](Frontend/src/assets/RakuShield.png)
+<p align="center">
+  <img src="Frontend/src/assets/Logo.png" width="100" style="vertical-align: middle; margin-right:10px;" />
+  <svg width="" height="50" viewBox="0 0 260 90">
+    <defs>
+      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#22c1c3"/>
+        <stop offset="100%" style="stop-color:#7b2ff7"/>
+      </linearGradient>
+    </defs>
+    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+      font-size="50" font-weight="bold" fill="url(#grad)" font-family="Segoe UI, sans-serif">
+      RakuShield
+    </text>
+  </svg>
+</p>
+
 
 Current release: `0.1.0` (February 27, 2026)
 
@@ -57,13 +72,13 @@ Core result:
 
 ### System and flow diagrams
 
-Transaction flow:
-
-![Transaction Flow](Frontend/src/assets/TransactionFlow.jpg)
-
 System architecture:
 
 ![System Design](Frontend/src/assets/SystemDesign.jpg)
+
+Transaction flow:
+
+![Transaction Flow](Frontend/src/assets/TransactionFlow.jpg)
 
 ## 5) Repository structure
 
