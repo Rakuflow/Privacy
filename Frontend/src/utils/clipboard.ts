@@ -1,5 +1,4 @@
 /**
- * Copy text to clipboard with fallback
  * Silently handles permission errors and uses fallback method
  */
 export async function copyToClipboard(text: string): Promise<boolean> {
@@ -24,10 +23,10 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
-    
+
     const successful = document.execCommand('copy');
     document.body.removeChild(textArea);
-    
+
     return successful;
   } catch (err) {
     console.error('All clipboard methods failed:', err);

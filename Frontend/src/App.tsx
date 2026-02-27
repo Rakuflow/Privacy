@@ -1,5 +1,5 @@
 import { RouterProvider } from 'react-router';
-import { router } from './routes';
+import { router } from './routes/routes';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
