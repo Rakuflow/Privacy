@@ -3,13 +3,11 @@
 Private value transfer infrastructure on Starknet, built around a shielded pool + zero-knowledge proofs.
 
 <p align="center">
-  <img src="Frontend/src/assets/Logo.png" width="320" alt="RakuShield logo" />
+  <img src="Frontend/src/assets/Logo.png" width="120" alt="RakuShield logo" />
 </p>
 
-<p align="center">
-  <strong>RakuShield</strong><br/>
-  Privacy-First Transfers on Starknet
-</p>
+<h2 align="center">RakuShield</h2>
+<h3 align="center">Privacy-First Transfers on Starknet</h3>
 
 
 Current release: `0.1.0` (February 27, 2026)
