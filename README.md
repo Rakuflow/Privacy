@@ -3,7 +3,7 @@
 Private value transfer infrastructure on Starknet, built around a shielded pool + zero-knowledge proofs.
 
 <p align="center">
-  <img src="Frontend/src/assets/RakuShield.png" width="320" alt="RakuShield logo" />
+  <img src="Frontend/src/assets/Logo.png" width="320" alt="RakuShield logo" />
 </p>
 
 <p align="center">
