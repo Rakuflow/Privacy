@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: . 
+      dockerfile: Dockerfile
+    container_name: rakushield-frontend
+    ports:
+      - "5001:5001" # Map port Vite server to host
+    environment:
+      - NODE_ENV=development # change 'production' when building for production
+    volumes:
+      - .:/app # Mount code to hot reload
+      - /app/node_modules
