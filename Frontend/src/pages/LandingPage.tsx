@@ -4,6 +4,9 @@ import { GlowButton } from '../components/GlowButton';
 import { GlassCard } from '../components/GlassCard';
 import { Footer } from '../components/Footer';
 import { Shield, Lock, Zap, ArrowRight, Eye, GitBranch, PlayCircle, Layers, Users, ShieldCheck, Database, Code, Key } from 'lucide-react';
+import logo from '../assets/Logo.png';
+import tutorialVideo from '../assets/tutorial.mp4';
+import systemDesignImage from '../assets/SystemDesign.jpg';
 
 export function LandingPage() {
   return (
@@ -14,7 +17,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             {/* <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-violet-500" /> */}
-            <img src="/src/assets/Logo.png" alt="RakuShield Logo" className="w-6 h-6 sm:w-8 sm:h-8" />
+            <img src={logo} alt="RakuShield Logo" className="w-6 h-6 sm:w-8 sm:h-8" />
             <span className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">RakuShield</span>
           </div>
           <Link to="/app">
@@ -103,7 +106,7 @@ export function LandingPage() {
 
         <GlassCard className="p-0 overflow-hidden max-w-4xl mx-auto">
           <div className="relative" style={{ paddingTop: '56.25%' }}>
-            <video className="absolute top-0 left-0 w-full h-full mx-auto" src="/src/assets/tutorial.mp4" controls muted autoPlay={false} />
+            <video className="absolute top-0 left-0 w-full h-full mx-auto" src={tutorialVideo} controls muted autoPlay={false} />
           </div>
         </GlassCard>
       </section>
@@ -225,7 +228,7 @@ export function LandingPage() {
                 <Users className="w-8 h-8 text-green-400" />
               </div>
               <h3 className="text-xl font-semibold mb-3 text-green-300">Everyone Else</h3>
-              <p className="text-sm text-gray-400">Privacy isn't just for the paranoid — it's a basic human right for all</p>
+              <p className="text-sm text-gray-400">Privacy is a basic human right for all.</p>
             </div>
           </GlassCard>
         </div>
@@ -248,7 +251,7 @@ export function LandingPage() {
         </div>
 
         <div>
-          <img src="/src/assets/SystemDesign.jpg" alt="System Design" className="w-full max-w-4xl mx-auto rounded-lg shadow-lg pb-5" />
+          <img src={systemDesignImage} alt="System Design" className="w-full max-w-4xl mx-auto rounded-lg shadow-lg pb-5" />
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Cairo Smart Contracts */}
@@ -401,11 +404,11 @@ export function LandingPage() {
               <div className="relative">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-lg">🔓</span>
+                    <span className="text-xs font-bold">IN</span>
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-semibold text-green-300">Deposit</div>
-                    <div className="text-xs text-gray-400">Public address → Shielded commitment</div>
+                    <div className="text-xs text-gray-400">Public address -&gt; Shielded commitment</div>
                   </div>
                 </div>
                 <div className="ml-5 mt-2 pl-5 border-l-2 border-dashed border-gray-600 h-8"></div>
@@ -429,7 +432,7 @@ export function LandingPage() {
               <div className="relative">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-indigo-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-lg">🔐</span>
+                    <span className="text-xs font-bold">PRV</span>
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-semibold text-indigo-300">Private Transfer</div>
@@ -443,7 +446,7 @@ export function LandingPage() {
               <div className="relative">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-lg">🔓</span>
+                    <span className="text-xs font-bold">OUT</span>
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-semibold text-blue-300">Withdraw</div>

@@ -1,15 +1,46 @@
-## Initialize
-    scarb fmt  (check code)
-    scarb build  (build -> create json)
-    scarb clean
+# Contract Package
 
-## Extract (code json)
-require: "jq" -> "sudo install jq" (wsl)
-jq '.abi' target/dev/contract_<name contract>.contract_class.json > <name abi>.json
+## Prerequisites
 
-## Declare: 
-    sncast declare --contract-name <name contract> --network sepolia
+- `scarb`
+- `snforge`
+- `sncast`
+- optional: `jq` (for ABI extraction)
 
-## Deploy:
-    sncast --accounts-file /home/<name folder>/.starknet_accounts/starknet_accounts.json --account my_account deploy --class-hash <hash contract> --arguments <address contract> --network sepolia
+## Development Commands
 
+```bash
+scarb fmt
+scarb build
+scarb clean
+```
+
+Run tests:
+
+```bash
+scarb test
+```
+
+## ABI Extraction
+
+```bash
+jq '.abi' target/dev/contract_<contract_name>.contract_class.json > <contract_name>.abi.json
+```
+
+## Declare (Sepolia)
+
+```bash
+sncast declare --contract-name <contract_name> --network sepolia
+```
+
+## Deploy (Sepolia)
+
+```bash
+sncast \
+  --accounts-file ~/.starknet_accounts/starknet_accounts.json \
+  --account my_account \
+  deploy \
+  --class-hash <class_hash> \
+  --arguments <constructor_args> \
+  --network sepolia
+```

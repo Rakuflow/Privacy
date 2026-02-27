@@ -20,11 +20,12 @@ import { MyAssets } from '../components/MyAssets';
 import { TransactionHistory } from '../components/TransactionHistory';
 import { ZkKeypairSetup } from '../components/ZkKeypairSetup';
 import { DebugLocalStorage } from '../components/DebugLocalStorage';
+import logo from '../assets/Logo.png';
 
 export function HomePage() {
   const { address, status } = useAccount();
   const zkAddress = useZkAddress();
-  const { keypair, isReady, clearKeypair } = useZkKeypair();
+  const { isReady } = useZkKeypair();
   const { balance, loading: balanceLoading, refetch: refetchBalance } = useTokenBalance();
   const [copied, setCopied] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
@@ -54,7 +55,7 @@ export function HomePage() {
     try {
       await refetchBalance();
       toast.success('Wallet balance updated!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to refresh balance');
     } finally {
       setTimeout(() => setIsRefreshingBalance(false), 500);
@@ -211,11 +212,11 @@ export function HomePage() {
 
                   {/* Additional Info */}
                   <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-violet-500/10 border border-violet-500/20 rounded-lg">
-                    <p className="text-xs sm:text-sm text-violet-300 mb-2 font-semibold">💡 How it works</p>
+                    <p className="text-xs sm:text-sm text-violet-300 mb-2 font-semibold">How it works</p>
                     <ul className="text-[10px] sm:text-xs text-gray-400 space-y-1.5 sm:space-y-2">
-                      <li>• Deposit: Shield your tokens with zk-proofs</li>
-                      <li>• Transfer: Send privately to other zk-addresses</li>
-                      <li>• Withdraw: Unshield back to public wallet</li>
+                      <li>Deposit: Shield your tokens with zk-proofs</li>
+                      <li>Transfer: Send privately to other zk-addresses</li>
+                      <li>Withdraw: Unshield back to public wallet</li>
                     </ul>
                   </div>
                 </div>
@@ -225,7 +226,7 @@ export function HomePage() {
         ) : (
           <div className="text-center py-12 sm:py-20">
             <GlassCard className="max-w-md mx-auto p-8 sm:p-12">
-              <img src="/src/assets/Logo.png" alt="RakuShield Logo" className="w-12 h-12 mx-auto mb-4" />
+              <img src={logo} alt="RakuShield Logo" className="w-12 h-12 mx-auto mb-4" />
               <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Connect Your Wallet</h2>
               <p className="text-sm sm:text-base text-gray-400 mb-6 sm:mb-8">Connect your Starknet wallet to start using the shielded pool</p>
               <WalletButton />
