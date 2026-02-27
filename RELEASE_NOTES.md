@@ -2,44 +2,55 @@
 
 ## v0.1.0 (February 27, 2026)
 
-### Summary
+### Release Theme
 
-`v0.1.0` establishes a cleaner and more production-ready baseline for the repository:
-- frontend structure alignment after refactor
-- standardized versioning and release documentation
-- formalized branch and release workflow
+Initial launch of the RakuFlow project on Starknet.
 
-### Highlights
+### Problem We Are Solving
 
-- **Frontend architecture cleanup**
-  - Global side effects moved out of `App.tsx` into startup setup.
-  - Route export barrel added at `Frontend/src/routes/index.ts`.
-  - Vite alias map updated to current directory layout.
+Public blockchain activity is transparent by default. For users, teams, and organizations, this creates privacy risk in normal financial operations.
 
-- **UI source quality improvements**
-  - Replaced hardcoded `"/src/assets/..."` references in core pages/components with direct imports.
-  - Cleaned up footer component structure and copy.
+RakuFlow addresses this by separating public wallet identity from shielded transfer identity, while keeping Starknet security and composability.
 
-- **Project governance baseline**
-  - Added `README.md`, `CHANGELOG.md`, `VERSION`, and `Frontend/.env.example`.
-  - Added workflow docs:
-    - `docs/BRANCHING_STRATEGY.md`
-    - `docs/RELEASE_PROCESS.md`
+### What This First Release Delivers
 
-### Breaking Changes
+- A complete privacy-first transfer product baseline:
+  - Connect wallet
+  - Generate shielded identity
+  - Deposit into shielded pool
+  - Transfer privately between shielded addresses
+  - Withdraw back to public addresses
+- Starknet-native technical foundation:
+  - Cairo contract package
+  - Zero-knowledge circuit package
+  - Frontend dApp experience for end users
+  - Operational scripts for testing and validation
+- Team delivery baseline:
+  - Versioned release artifacts
+  - Branching and release process documentation
 
-None.
+### Who This Release Is For
 
-### Known Issues
+- Users who need better transaction privacy on Starknet
+- Teams evaluating shielded transfer architecture
+- Contributors and developers building the next project phases
 
-- Frontend production bundle is currently large and triggers Vite chunk-size warnings. Functional build remains successful.
+### Current Scope
+
+- Primary working scope is Starknet Sepolia.
+- This release is a strong project baseline, not a final production endpoint.
+
+### Known Limitations
+
+- Mainnet rollout is not part of this initial release.
+- Additional optimization and hardening are planned for next iterations.
+
+### Next Priorities
+
+- Mainnet readiness planning
+- Performance and reliability improvements
+- Deeper relayer and privacy workflow hardening
 
 ### Upgrade Notes
 
-1. Pull latest changes.
-2. Ensure `Frontend/.env` includes all values listed in `Frontend/.env.example`.
-3. Rebuild frontend:
-   ```bash
-   cd Frontend
-   npm run build
-   ```
+For first-time setup and environment requirements, follow `README.md`.
