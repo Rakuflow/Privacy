@@ -9,7 +9,7 @@ services:
     ports:
       - "5001:5001" # Map port Vite server to host
     environment:
-      - NODE_ENV=development # change 'production' when building for production
+      - NODE_ENV=production # Set production environment variable
     volumes:
       - .:/app # Mount code to hot reload
       - /app/node_modules
