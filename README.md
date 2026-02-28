@@ -1,16 +1,12 @@
-# RakuFlow ZK Starknet
+# RakuShield
 
-Private value transfer infrastructure on Starknet, built around a shielded pool + zero-knowledge proofs.
+Privacy-first transfer infrastructure on Starknet, built with a shielded pool, relayer service, and zero-knowledge circuits.
 
 <p align="center">
-  <img src="Frontend/src/assets/Logo.png" width="120" alt="RakuShield logo" />
+  <img src="WebService/WebUser/src/assets/Logo.png" width="120" alt="RakuShield logo" />
 </p>
 
-<h2 align="center">RakuShield</h2>
-<h3 align="center">Privacy-First Transfers on Starknet</h3>
-
-
-Current release: `0.1.0` (February 27, 2026)
+Current release: `v0.1.0` (2026-02-28)
 
 ## 1) Why this project exists
 
@@ -33,7 +29,16 @@ Core result:
 - observers can see on-chain state transitions
 - observers cannot directly link sender/receiver identity inside the shielded flow
 
-## 3) Product overview (for non-dev and stakeholders)
+## 3) Project goals
+
+RakuShield protects transaction privacy by separating public wallet identity from shielded transfer identity.
+
+Core flow:
+1. Deposit into shielded pool.
+2. Transfer privately via commitments/notes.
+3. Withdraw back to a public address.
+
+## 4) Product overview (for non-dev and stakeholders)
 
 ### Key capabilities
 - private transfer UX in a web app
@@ -53,13 +58,44 @@ Core result:
 - Focused on Starknet Sepolia for current development/release cycle.
 - Structured for iterative production hardening.
 
-## 4) Technical architecture (for developers)
+## 5) Technical architecture (for developers)
 
-### High-level design
-- **Frontend (`Frontend/`)**: React + Vite dApp UI and client-side orchestration.
-- **Contracts (`Packages/Contract/`)**: Cairo contracts for shielded pool logic.
-- **Circuits (`Packages/Circuits/`)**: Noir circuits/proof-related artifacts.
-- **Scripts (`Packages/test/`)**: operational/integration scripts for contract interaction.
+### High-level Architecture
+
+- **Frontend (`WebService/WebUser/`)**  
+  React + Vite dApp UI.  
+  Handles wallet connection, intent signing, zk-identity derivation, client-side proof generation (Noir), and interaction with the relayer API.
+
+- **Backend / Relayer (`WebService/API/`)**  
+  Relayer service responsible for:
+  - Receiving signed intents and generated proofs
+  - Performing basic validation (signature, proof format)
+  - Constructing contract calldata
+  - Broadcasting transactions to Starknet  
+  Gas fees are paid by the relayer account (gas abstraction layer).
+
+- **Smart Contracts (`Blockchain/Contract/`)**  
+  Cairo contracts deployed on Starknet implementing:
+  - ZK proof verification
+  - Merkle tree commitment state management
+  - Root history tracking
+  - Nullifier enforcement
+  - Shielded transfer and withdrawal logic
+
+- **Zero-Knowledge Circuits (`Blockchain/Circuits/`)**  
+  Noir circuits defining:
+  - Ownership constraints
+  - Commitment construction
+  - Nullifier derivation
+  - Merkle inclusion proof logic  
+  Compiled artifacts are used by the client-side prover.
+
+- **Scripts & Tooling (`Blockchain/Test/`)**  
+  Integration scripts and testing utilities for:
+  - Contract deployment
+  - State interaction
+  - Proof verification testing
+  - Relayer flow simulation
 
 ### System and flow diagrams
 
@@ -71,103 +107,101 @@ Transaction flow:
 
 ![Transaction Flow](Frontend/src/assets/TransactionFlow.jpg)
 
-## 5) Repository structure
+## 6) Repository structure
 
 | Path | Purpose |
 | --- | --- |
-| `Frontend/` | React + Vite dApp (UI, routing, wallet, services, hooks) |
-| `Packages/Contract/` | Cairo contract code, Scarb config, deployment/test tooling |
-| `Packages/Circuits/` | Noir circuit package(s) and proving inputs |
-| `Packages/test/` | Node scripts for local/sepolia interaction |
-| `docs/` | Engineering process docs (branching + release) |
-| `CHANGELOG.md` | Machine-readable release history |
+| `WebService/WebUser/` | Frontend dApp (React + Vite) |
+| `WebService/API/` | Relayer backend (Express + TypeScript + MongoDB) |
+| `Blockchain/Contract/` | Cairo contracts |
+| `Blockchain/Circuits/shielded_transfer/` | Noir circuit package |
+| `Blockchain/test/` | Script-based contract interaction tests |
+| `docs/` | Branching and release process documents |
+| `VERSION` | Root release version source of truth |
+| `CHANGELOG.md` | Structured change history |
 | `RELEASE_NOTES.md` | Human-readable release summary |
-| `VERSION` | Project release version source of truth |
 
-## 6) Getting started
+## 7) Prerequisites
 
-### Prerequisites
 - Node.js 20+
 - npm 10+
 - Scarb
-- Starknet Foundry (`snforge`, `sncast`) for contract testing/deploy
-- Noir toolchain (`nargo`) for circuit workflows
+- Starknet Foundry (`snforge`, `sncast`)
+- Noir (`nargo`)
+- MongoDB (for API service)
 
-### Frontend setup
+## 8) Run components
+
+### Frontend (`WebService/WebUser`)
 
 ```bash
-cd Frontend
+cd WebService/WebUser
 npm ci
-```
-
-Create environment file:
-
-- PowerShell:
-```powershell
-Copy-Item .env.example .env
-```
-
-- Bash:
-```bash
 cp .env.example .env
-```
-
-Run dev server:
-
-```bash
 npm run dev
 ```
 
-Build production bundle:
+### API (`WebService/API`)
 
 ```bash
-npm run build
+cd WebService/API
+npm ci
+npm run dev
 ```
 
-### Contract package
+### Contract (`Blockchain/Contract`)
 
 ```bash
-cd Packages/Contract
+cd Blockchain/Contract
 scarb build
 scarb test
 ```
 
-If `snforge` is not installed, `scarb test` will fail until Starknet Foundry is available in your environment.
+### Circuit (`Blockchain/Circuits/shielded_transfer`)
 
-## 7) Environment variables (Frontend)
+```bash
+cd Blockchain/Circuits/shielded_transfer
+nargo check
+```
 
-Set in `Frontend/.env`:
+## 9) Frontend env vars
 
-| Variable | Description |
-| --- | --- |
-| `VITE_RPC_SEPOLIA` | Starknet Sepolia RPC URL |
-| `VITE_RPC_MAINNET` | Starknet Mainnet RPC URL |
-| `VITE_CHAIN_ID_SEPOLIA` | Sepolia chain id (`SN_SEPOLIA`) |
-| `VITE_CHAIN_ID_MAINNET` | Mainnet chain id (`SN_MAIN`) |
-| `VITE_SHIELDED_POOL` | Shielded pool contract address |
-| `VITE_GARAGA_VERIFIER` | Verifier contract address |
-| `VITE_STRK_TOKEN` | Token contract address |
-| `VITE_RELAYER_URL` | Relayer API base URL |
+Set in `WebService/WebUser/.env`:
 
-Reference template: `Frontend/.env.example`.
+- `VITE_RPC_SEPOLIA`
+- `VITE_RPC_MAINNET`
+- `VITE_CHAIN_ID_SEPOLIA`
+- `VITE_CHAIN_ID_MAINNET`
+- `VITE_SHIELDED_POOL`
+- `VITE_GARAGA_VERIFIER`
+- `VITE_STRK_TOKEN`
+- `VITE_RELAYER_URL`
 
-## 8) Security and operational notes
+Template: `WebService/WebUser/.env.example`.
 
-- Never commit real secrets or private keys.
-- Treat integration scripts in `Packages/test/` as operational scripts, not end-user commands.
-- Validate network, contract addresses, and account contexts before running write transactions.
+## 10) Release and branching docs
 
-## 9) Branching, release, and versioning
+- Branching strategy: `docs/BRANCHING_STRATEGY.md`
+- Release process: `docs/RELEASE_PROCESS.md`
+- Release notes: `RELEASE_NOTES.md`
+- Changelog: `CHANGELOG.md`
 
-- Branching model: `docs/BRANCHING_STRATEGY.md`
-- Release checklist/process: `docs/RELEASE_PROCESS.md`
-- Versioning standard: Semantic Versioning (`MAJOR.MINOR.PATCH`)
-- Release history: `CHANGELOG.md`
-- Public release summary: `RELEASE_NOTES.md`
+## 11) Release branch/tag for v0.1.0
 
-## 10) Release 0.1.0 summary
+Create and push release branch:
 
-`v0.1.0` establishes a production-oriented baseline:
-- frontend structure cleanup and route/bootstrap normalization
-- standardized release/documentation artifacts
-- formalized branching/release workflow for team execution
+```bash
+git checkout dev
+git pull origin dev
+git checkout -b release/v0.1.0
+git push -u origin release/v0.1.0
+```
+
+After release branch is merged to `main`, create tag:
+
+```bash
+git checkout main
+git pull origin main
+git tag -a v0.1.0 -m "Release v0.1.0"
+git push origin v0.1.0
+```

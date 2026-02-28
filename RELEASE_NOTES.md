@@ -1,6 +1,6 @@
 # Release Notes
 
-## v0.1.0 (February 27, 2026)
+## v0.1.0 (February 28, 2026)
 
 ### Release Theme
 
@@ -14,20 +14,21 @@ RakuFlow addresses this by separating public wallet identity from shielded trans
 
 ### What This First Release Delivers
 
-- A complete privacy-first transfer product baseline:
+- Complete privacy-first transfer baseline:
   - Connect wallet
   - Generate shielded identity
   - Deposit into shielded pool
   - Transfer privately between shielded addresses
   - Withdraw back to public addresses
-- Starknet-native technical foundation:
-  - Cairo contract package
-  - Zero-knowledge circuit package
-  - Frontend dApp experience for end users
-  - Operational scripts for testing and validation
-- Team delivery baseline:
-  - Versioned release artifacts
-  - Branching and release process documentation
+- Starknet technical foundation:
+  - Frontend dApp in `WebService/WebUser`
+  - Relayer backend in `WebService/API`
+  - Cairo contracts in `Blockchain/Contract`
+  - Noir circuit in `Blockchain/Circuits/shielded_transfer`
+  - Script tests in `Blockchain/test`
+- Delivery governance baseline:
+  - `VERSION`, `CHANGELOG.md`, `RELEASE_NOTES.md`
+  - `docs/BRANCHING_STRATEGY.md`, `docs/RELEASE_PROCESS.md`
 
 ### Who This Release Is For
 
@@ -39,6 +40,11 @@ RakuFlow addresses this by separating public wallet identity from shielded trans
 
 - Primary working scope is Starknet Sepolia.
 - This release is a strong project baseline, not a final production endpoint.
+
+### Release Branch and Tag
+
+- Release branch: `release/v0.1.0`
+- Release tag: `v0.1.0`
 
 ### Known Limitations
 
