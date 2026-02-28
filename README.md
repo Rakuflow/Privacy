@@ -101,11 +101,11 @@ Core flow:
 
 System architecture:
 
-![System Design](Frontend/src/assets/SystemDesign.jpg)
+![System Design](WebService/WebUser/src/assets/SystemDesign.jpg)
 
 Transaction flow:
 
-![Transaction Flow](Frontend/src/assets/TransactionFlow.jpg)
+![Transaction Flow](WebService/WebUser/src/assets/TransactionFlow.jpg)
 
 ## 6) Repository structure
 
