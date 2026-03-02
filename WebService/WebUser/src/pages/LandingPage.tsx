@@ -4,9 +4,7 @@ import { GlowButton } from '../components/GlowButton';
 import { GlassCard } from '../components/GlassCard';
 import { Footer } from '../components/Footer';
 import { Shield, Lock, Zap, ArrowRight, Eye, GitBranch, PlayCircle, Layers, Users, ShieldCheck, Database, Code, Key } from 'lucide-react';
-import logo from '../assets/Logo.png';
-import tutorialVideo from '../assets/tutorial.mp4';
-import systemDesignImage from '../assets/SystemDesign.jpg';
+import { logo, starknetLogo, systemDesignImage } from '../assets';
 
 export function LandingPage() {
   return (
@@ -62,7 +60,7 @@ export function LandingPage() {
                 <Eye className="w-6 h-6 text-violet-400" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold mb-3">Private Transfers</h3>
+                <h3 className="text-xl font-semibold mb-3">Shielded Transfer</h3>
                 <p className="text-gray-400">Hide sender and receiver addresses using zk-commitments. On-chain observers only see public relayer addresses.</p>
               </div>
             </div>
@@ -97,16 +95,22 @@ export function LandingPage() {
       {/* Video Tutorial Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
         <div className="text-center mb-8 sm:mb-12">
-          <div className="inline-flex items-center gap-2 mb-4">
+          <div className="inline-flex items-center gap-2 mb-2">
             <PlayCircle className="w-6 h-6 text-violet-400" />
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Video Tutorial</h2>
           </div>
           <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto">Watch our step-by-step guide to get started with RakuShield</p>
         </div>
 
-        <GlassCard className="p-0 overflow-hidden max-w-4xl mx-auto">
-          <div className="relative" style={{ paddingTop: '56.25%' }}>
-            <video className="absolute top-0 left-0 w-full h-full mx-auto" src={tutorialVideo} controls muted autoPlay={false} />
+        <GlassCard className="p-0 overflow-hidden max-w-5xl mx-auto">
+          <div className="relative w-full pb-[56.25%]">
+            <iframe
+              className="absolute top-0 left-0 w-full h-full"
+              src="https://www.youtube.com/embed/QVr1qt3OHn4"
+              title="Tutorial Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
           </div>
         </GlassCard>
       </section>
@@ -124,7 +128,7 @@ export function LandingPage() {
               <span className="text-lg sm:text-xl font-bold">1</span>
             </div>
             <div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-1.5 sm:mb-2">Sign & Derive zk-Address</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-1.5 sm:mb-2">Establish Private Execution Identity</h3>
               <p className="text-sm sm:text-base text-gray-400">
                 Connect your wallet and sign a message to derive your unique zk-address (0zk...). This address is cryptographically linked to your wallet but remains private.
               </p>
@@ -146,7 +150,7 @@ export function LandingPage() {
               <span className="text-lg sm:text-xl font-bold">3</span>
             </div>
             <div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-1.5 sm:mb-2">Transfer or Withdraw</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-1.5 sm:mb-2">Shielded Transfer or Withdraw</h3>
               <p className="text-sm sm:text-base text-gray-400">
                 Send to another zk-address or withdraw to any public address. All transactions are executed via relayers keeping your identity private.
               </p>
@@ -468,7 +472,7 @@ export function LandingPage() {
       {/* Built on Starknet Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
         <GlassCard className="text-center p-6 sm:p-8 md:p-12">
-          <GitBranch className="w-12 h-12 sm:w-16 sm:h-16 text-violet-400 mx-auto mb-4 sm:mb-6" />
+          <img src={starknetLogo} alt="Starknet Logo" className="w-20 h-20 mx-auto mb-4 sm:mb-6" />
           <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Built on Starknet</h2>
           <p className="text-sm sm:text-base text-gray-400 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
             Leveraging Cairo smart contracts and Starknet's native account abstraction for the most secure and private transfer experience.

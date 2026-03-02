@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import { useAccount } from '@starknet-react/core';
 import { WalletButton } from './WalletButton';
 import { ArrowLeft } from 'lucide-react';
-import logo from '../assets/Logo.png';
+import { logo } from '../assets';
 
 interface HeaderProps {
   showBackButton?: boolean;

@@ -20,7 +20,7 @@ import { MyAssets } from '../components/MyAssets';
 import { TransactionHistory } from '../components/TransactionHistory';
 import { ZkKeypairSetup } from '../components/ZkKeypairSetup';
 import { DebugLocalStorage } from '../components/DebugLocalStorage';
-import logo from '../assets/Logo.png';
+import { logo } from '../assets';
 
 export function HomePage() {
   const { address, status } = useAccount();
