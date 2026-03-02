@@ -16,9 +16,8 @@ merkle_directions = [
   "0", "0", "0", "0", "0",
   "0", "0", "0", "0", "0"
 ]
-new_rho = "11"
-new_rcm = "12"
-recipient_spending_key = "13"
+recipient = "1234"
 root = "0"
 nullifier_hash = "0"
-new_commitment = "0"
+amount_low_public = "1000000000000000000"
+amount_high_public = "0"

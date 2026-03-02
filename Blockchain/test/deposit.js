@@ -8,10 +8,11 @@ dotenv.config();
 const RPC_URL = "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_8/LfKXerIDAvp3ToDzzjfD8";
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const SHIELDED_POOL_ADDRESS = process.env.SHIELDED_POOL_ADDRESS; // địa chỉ deploy của ShieldedPool
+const TOKEN_ADDRESS = process.env.TOKEN_ADDRESS;
 // SHIELDED_VERIFIER_ADDRESS không cần ở đây vì verifier là internal storage
 
-// if (!RPC_URL || !PRIVATE_KEY || !SHIELDED_POOL_ADDRESS) {
-//     console.error('Missing env vars: RPC_URL, PRIVATE_KEY, SHIELDED_POOL_ADDRESS');
+// if (!RPC_URL || !PRIVATE_KEY || !SHIELDED_POOL_ADDRESS || !TOKEN_ADDRESS) {
+//     console.error('Missing env vars: RPC_URL, PRIVATE_KEY, SHIELDED_POOL_ADDRESS, TOKEN_ADDRESS');
 //     process.exit(1);
 // }
 
@@ -47,6 +48,7 @@ async function main() {
     try {
         // Gọi function deposit (external, cần sign)
         const txResponse = await shieldedPool.deposit(
+            TOKEN_ADDRESS,
             amount,          // u256 → starknet.js tự serialize thành 2 felts (low, high)
             rho,
             rcm,

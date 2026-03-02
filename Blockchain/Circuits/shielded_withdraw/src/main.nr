@@ -1,8 +1,8 @@
 use std::hash::pedersen_hash;
 
 // NOTE:
-// - This circuit is ABI-compatible with verifier public inputs:
-//   [root, nullifier_hash, new_commitment]
+// - Public inputs are aligned with contract withdraw flow:
+//   [root, nullifier_hash, amount_low, amount_high, recipient]
 fn hash2(left: Field, right: Field) -> Field {
     pedersen_hash([left, right])
 }
@@ -55,16 +55,15 @@ fn main(
     leaf_index: Field,
     merkle_siblings: [Field; 20],
     merkle_directions: [Field; 20],
-    new_rho: Field,
-    new_rcm: Field,
-    recipient_spending_key: Field,
     // Public inputs
     root: pub Field,
     nullifier_hash: pub Field,
-    new_commitment: pub Field,
+    amount_low_public: pub Field,
+    amount_high_public: pub Field,
+    recipient: pub Field,
 ) {
     assert(spending_key != 0);
-    assert(recipient_spending_key != 0);
+    assert(recipient != 0);
     assert(amount_low + amount_high != 0);
 
     let note_commitment = hash_note(amount_low, amount_high, rho, rcm, spending_key);
@@ -74,12 +73,6 @@ fn main(
     let computed_nullifier = hash_nullifier(spending_key, rho, leaf_index);
     assert(computed_nullifier == nullifier_hash);
 
-    let computed_new_commitment = hash_note(
-        amount_low,
-        amount_high,
-        new_rho,
-        new_rcm,
-        recipient_spending_key,
-    );
-    assert(computed_new_commitment == new_commitment);
+    assert(amount_low == amount_low_public);
+    assert(amount_high == amount_high_public);
 }

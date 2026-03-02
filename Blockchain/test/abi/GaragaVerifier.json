@@ -1,73 +1,89 @@
 [
     {
-        "type": "impl",
-        "name": "VerifierImpl",
-        "interface_name": "contract::verifier_interface::IVerifier"
+        "type":  "impl",
+        "name":  "VerifierImpl",
+        "interface_name":  "contract::verifier_interface::IVerifier"
     },
     {
-        "type": "enum",
-        "name": "core::bool",
-        "variants": [
-            {
-                "name": "False",
-                "type": "()"
-            },
-            {
-                "name": "True",
-                "type": "()"
-            }
-        ]
+        "type":  "enum",
+        "name":  "core::bool",
+        "variants":  [
+                         {
+                             "name":  "False",
+                             "type":  "()"
+                         },
+                         {
+                             "name":  "True",
+                             "type":  "()"
+                         }
+                     ]
     },
     {
-        "type": "interface",
-        "name": "contract::verifier_interface::IVerifier",
-        "items": [
-            {
-                "type": "function",
-                "name": "verify_shielded_transfer",
-                "inputs": [
-                    {
-                        "name": "proof",
-                        "type": "core::array::Array::<core::felt252>"
-                    },
-                    {
-                        "name": "public_inputs",
-                        "type": "core::array::Array::<core::felt252>"
-                    }
-                ],
-                "outputs": [
-                    {
-                        "type": "core::bool"
-                    }
-                ],
-                "state_mutability": "external"
-            },
-            {
-                "type": "function",
-                "name": "verify_withdraw",
-                "inputs": [
-                    {
-                        "name": "proof",
-                        "type": "core::array::Array::<core::felt252>"
-                    },
-                    {
-                        "name": "public_inputs",
-                        "type": "core::array::Array::<core::felt252>"
-                    }
-                ],
-                "outputs": [
-                    {
-                        "type": "core::bool"
-                    }
-                ],
-                "state_mutability": "external"
-            }
-        ]
+        "type":  "interface",
+        "name":  "contract::verifier_interface::IVerifier",
+        "items":  [
+                      {
+                          "type":  "function",
+                          "name":  "verify_shielded_transfer",
+                          "inputs":  [
+                                         {
+                                             "name":  "proof",
+                                             "type":  "core::array::Array::\u003ccore::felt252\u003e"
+                                         },
+                                         {
+                                             "name":  "public_inputs",
+                                             "type":  "core::array::Array::\u003ccore::felt252\u003e"
+                                         }
+                                     ],
+                          "outputs":  [
+                                          {
+                                              "type":  "core::bool"
+                                          }
+                                      ],
+                          "state_mutability":  "external"
+                      },
+                      {
+                          "type":  "function",
+                          "name":  "verify_withdraw",
+                          "inputs":  [
+                                         {
+                                             "name":  "proof",
+                                             "type":  "core::array::Array::\u003ccore::felt252\u003e"
+                                         },
+                                         {
+                                             "name":  "public_inputs",
+                                             "type":  "core::array::Array::\u003ccore::felt252\u003e"
+                                         }
+                                     ],
+                          "outputs":  [
+                                          {
+                                              "type":  "core::bool"
+                                          }
+                                      ],
+                          "state_mutability":  "external"
+                      }
+                  ]
     },
     {
-        "type": "event",
-        "name": "contract::garaga_verifier::GaragaVerifier::Event",
-        "kind": "enum",
-        "variants": []
+        "type":  "constructor",
+        "name":  "constructor",
+        "inputs":  [
+                       {
+                           "name":  "transfer_backend",
+                           "type":  "core::starknet::contract_address::ContractAddress"
+                       },
+                       {
+                           "name":  "withdraw_backend",
+                           "type":  "core::starknet::contract_address::ContractAddress"
+                       }
+                   ]
+    },
+    {
+        "type":  "event",
+        "name":  "contract::garaga_verifier::GaragaVerifier::Event",
+        "kind":  "enum",
+        "variants":  [
+
+                     ]
     }
 ]

@@ -2,6 +2,7 @@ pub mod garaga_verifier;
 
 pub mod incremental_merkle_tree;
 pub mod merkle_path;
+pub mod noir_backend_interface;
 
 pub mod note;
 pub mod shielded_pool;

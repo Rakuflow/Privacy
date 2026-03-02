@@ -11,3 +11,7 @@ pub const DEPOSIT_ZERO: felt252 = 'Deposit amount zero';
 pub const WITHDRAW_ZERO: felt252 = 'Withdraw amount zero';
 pub const INVALID_SPENDING_KEY: felt252 = 'Invalid spending key';
 pub const INVALID_AMOUNT_PARSE: felt252 = 'Invalid amount in public inputs';
+pub const UNAUTHORIZED: felt252 = 'Unauthorized';
+pub const INVALID_TOKEN: felt252 = 'Invalid token address';
+pub const TOKEN_NOT_SUPPORTED: felt252 = 'Token not supported';
+pub const TOKEN_LOCKED: felt252 = 'Token has locked balance';
